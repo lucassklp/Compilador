@@ -1,0 +1,6 @@
+c:\users\lssimas\documents\visual studio 2013\Projects\Compiler\Compiler\bin\Debug\Compiler.exe.config
+c:\users\lssimas\documents\visual studio 2013\Projects\Compiler\Compiler\obj\Debug\Compiler.csprojResolveAssemblyReference.cache
+c:\users\lssimas\documents\visual studio 2013\Projects\Compiler\Compiler\bin\Debug\Compiler.exe
+c:\users\lssimas\documents\visual studio 2013\Projects\Compiler\Compiler\bin\Debug\Compiler.pdb
+c:\users\lssimas\documents\visual studio 2013\Projects\Compiler\Compiler\obj\Debug\Compiler.exe
+c:\users\lssimas\documents\visual studio 2013\Projects\Compiler\Compiler\obj\Debug\Compiler.pdb
