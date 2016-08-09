@@ -13,7 +13,8 @@ namespace Compiler
         {
             
             
-            string p = "int main  (    ( {something...}";
+            string p = @"int main  (    ) 
+                        {something...}";
             Programa programa = new Programa(p);
             programa.isValid();
 

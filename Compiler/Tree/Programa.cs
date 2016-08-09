@@ -19,11 +19,15 @@ namespace Compiler.Tree
         public string Code { get; set; }
         #endregion
 
+        #region Constantes
+        private const string regularExpression = @"int\smain\s*\(\s*\)";
+        #endregion
+
         public Programa(string program)
         {
             program = program.ToLower();
             this.Code = program;
-            regex = new Regex(@"int\smain\s*\(\s*\)");
+            regex = new Regex(regularExpression);
 
             bloco = new Bloco(this.GetBloco());
         }
@@ -38,7 +42,7 @@ namespace Compiler.Tree
 
         private string GetBloco()
         {
-            var regex = new Regex(@"int\smain\s*\(\s*\)");
+            var regex = new Regex(regularExpression);
             return regex.Replace(this.Code, string.Empty, 1);
         }
 

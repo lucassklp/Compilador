@@ -49,6 +49,7 @@
     <Compile Include="Tree\Bloco.cs" />
     <Compile Include="Tree\Comando.cs" />
     <Compile Include="Interfaces\IVerifier.cs" />
+    <Compile Include="Tree\DeclaracaoVariavel.cs" />
     <Compile Include="Tree\Programa.cs" />
   </ItemGroup>
   <ItemGroup>

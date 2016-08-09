@@ -4,3 +4,9 @@ c:\users\lssimas\documents\visual studio 2013\Projects\Compiler\Compiler\bin\Deb
 c:\users\lssimas\documents\visual studio 2013\Projects\Compiler\Compiler\bin\Debug\Compiler.pdb
 c:\users\lssimas\documents\visual studio 2013\Projects\Compiler\Compiler\obj\Debug\Compiler.exe
 c:\users\lssimas\documents\visual studio 2013\Projects\Compiler\Compiler\obj\Debug\Compiler.pdb
+D:\Lucas\Projetos\GitHub\Compilador\Compiler\bin\Debug\Compiler.exe.config
+D:\Lucas\Projetos\GitHub\Compilador\Compiler\obj\Debug\Compiler.exe
+D:\Lucas\Projetos\GitHub\Compilador\Compiler\obj\Debug\Compiler.pdb
+D:\Lucas\Projetos\GitHub\Compilador\Compiler\obj\Debug\Compiler.csprojResolveAssemblyReference.cache
+D:\Lucas\Projetos\GitHub\Compilador\Compiler\bin\Debug\Compiler.exe
+D:\Lucas\Projetos\GitHub\Compilador\Compiler\bin\Debug\Compiler.pdb
