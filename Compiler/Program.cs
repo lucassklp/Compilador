@@ -1,6 +1,7 @@
 ﻿using Compiler.Tree;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,12 +12,19 @@ namespace Compiler
     {
         static void Main(string[] args)
         {
-            
-            
-            string p = @"int main  (    ) 
-                        {something...}";
-            Programa programa = new Programa(p);
-            programa.isValid();
+            string file = @"C:\arquivo_exemplo.txt";
+            //string file = @"C:\test_scanner.txt";
+            string content;
+            using (StreamReader sr = new StreamReader(file))
+            {
+                content = sr.ReadToEnd();
+            }
+
+            Scanner scanner = new Scanner(content);
+            scanner.MontarTokenTable();
+
+            //Programa programa = new Programa(p);
+            //programa.isValid();
 
 
         }

@@ -10,6 +10,7 @@ namespace Compiler.Tree
 
         }
 
-        public bool isValid();
+        public bool isValid() { return true; }
+
     }
 }
