@@ -10,19 +10,19 @@ namespace Compiler
     public enum Grammar : int
     {
 
-        [Category("Rules")]
+        [Category("IdentifierRules")]
         [Description(@"/([A-Za-z]|\_)([A-Za-z]|\_|[0-9])*/")]
         Identificador,
 
-        [Category("Rules")]
+        [Category("NumericRules")]
         [Description(@"/([0-9][0-9]*/")]
         TypeIntLiteral,
 
-        [Category("Rules")]
+        [Category("NumericRules")]
         [Description(@"/[0-9]*\.[0-9]+/")]
         TypeFloatLiteral,
 
-        [Category("Rules")]
+        [Category("CharRules")]
         [Description(@"/\'[A-Za-z]|[0-9]/")]
         TypeCharLiteral,
 

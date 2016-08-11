@@ -8,8 +8,29 @@ namespace Compiler
 {
     class Utils
     {
+        public static bool IsDigit(char caracter)
+        {
+            return RegexLibrary.IsDigit(caracter);
+        }
 
-        public static Grammar? isPalavraReservada(string value)
+        public static bool IsNumericSymbol(char caracter)
+        {
+            return RegexLibrary.IsNumericSymbol(caracter);
+        }
+
+        public static bool IsLetter(char caracter)
+        {
+            return RegexLibrary.IsLetter(caracter);
+        }
+
+
+        public static Grammar? GetToken(char caracter)
+        {
+            return EnumUtils<Grammar>.List().
+                Find(x => x == EnumUtils<Grammar>.GetFromDescription(caracter.ToString()));
+        }
+
+        public static Grammar? GetPalavraReservada(string value)
         {
             return EnumUtils<Grammar>.GetFromCategory("PalavraReservada").
                 Find(x => EnumUtils<Grammar>.GetDescription(x) == value);
