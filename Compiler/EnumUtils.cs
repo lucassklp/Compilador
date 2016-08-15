@@ -42,7 +42,10 @@ namespace Compiler
         public static List<T> GetFromCategory(string category)
         {
             List<T> listaEnum = Enum.GetValues(typeof(T)).Cast<T>().ToList();
-            return listaEnum.FindAll(x => GetDescription(x) == category);
+            
+            List<T> Retorno = listaEnum.FindAll(x => GetCategory(x) == category);
+
+            return Retorno;
         }
 
         public static string GetCategory(T value)

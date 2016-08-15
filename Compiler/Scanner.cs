@@ -44,14 +44,22 @@ namespace Compiler
                                     lexema += getNext();
                                 while (Utils.isDelimitador(caracter) || !Utils.IsNumericSymbol(caracter));
 
-                                Grammar grammar = Rules.NumericFormat(lexema);
+                                Grammar grammar = RegexLibrary.ValidateNumericRules(Utils.GetNumericTypes(), lexema);
                                 tokenTable.ListaTokens.Add(new Token(linha, coluna, grammar, lexema));
                             }
                             else
                             {
                                 do
-                                    lexema += getNext();
-                                while (!Utils.isDelimitador(caracter) || Utils.GetToken(caracter) == null);
+                                {
+                                    lexema += caracter;
+                                    caracter = getNext();
+                                }
+                                while (!Utils.isDelimitador(caracter) || Utils.GetToken(caracter) != null);
+                                
+                                   
+                                
+                                    
+                                
 
                                 if (Utils.GetPalavraReservada(lexema) != null)
                                 {
@@ -66,7 +74,7 @@ namespace Compiler
             }
             catch(Exception ex)
             {
-
+                Console.WriteLine("Exception: " + ex.Message);
             }
 
 

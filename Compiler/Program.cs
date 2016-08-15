@@ -21,7 +21,7 @@ namespace Compiler
             }
 
             Scanner scanner = new Scanner(content);
-            scanner.MontarTokenTable();
+            TokenTable teste = scanner.MontarTokenTable();
 
             //Programa programa = new Programa(p);
             //programa.isValid();

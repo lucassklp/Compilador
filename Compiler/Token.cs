@@ -15,7 +15,10 @@ namespace Compiler
 
         public Token(int Linha, int Coluna, Grammar Gramatica, string Lexema)
         {
-
+            this.Linha = Linha;
+            this.Coluna = Coluna;
+            this.Gramatica = Gramatica;
+            this.Lexema = Lexema;
         }
 
 

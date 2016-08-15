@@ -24,10 +24,25 @@ namespace Compiler
         }
 
 
+        public static List<Grammar> GetNumericTypes()
+        {
+            return EnumUtils<Grammar>.GetFromCategory("NumericRules");
+        }
+
         public static Grammar? GetToken(char caracter)
         {
-            return EnumUtils<Grammar>.List().
+            //para fins de debug
+            int i = 0;
+            if (caracter == '(')
+                i++;
+
+            Grammar G = EnumUtils<Grammar>.List().
                 Find(x => x == EnumUtils<Grammar>.GetFromDescription(caracter.ToString()));
+
+            if (G == Grammar.Identificador)
+                return null;
+            else
+                return G;
         }
 
         public static Grammar? GetPalavraReservada(string value)
@@ -42,8 +57,9 @@ namespace Compiler
             delimitadores.Add(' ');
             delimitadores.Add('\t');
             delimitadores.Add('\n');
-
-            return delimitadores.Exists(x => x == delimit);
+            delimitadores.Add('\r');
+            bool retorno = delimitadores.Exists(x => x == delimit);
+            return retorno;
 
         }
 
