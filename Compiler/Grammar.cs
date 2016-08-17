@@ -15,7 +15,7 @@ namespace Compiler
         Identificador,
 
         [Category("NumericRules")]
-        [Description(@"/([0-9][0-9]*/")]
+        [Description(@"[0-9]+")]
         TypeIntLiteral,
 
         [Category("NumericRules")]
@@ -23,7 +23,7 @@ namespace Compiler
         TypeFloatLiteral,
 
         [Category("CharRules")]
-        [Description(@"/\'[A-Za-z]|[0-9]/")]
+        [Description(@"\'([A-Za-z]|[0-9])\'")]
         TypeCharLiteral,
 
 

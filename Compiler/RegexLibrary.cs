@@ -41,11 +41,24 @@ namespace Compiler
             {
                 string pattern = EnumUtils<Grammar>.GetDescription(item);
                 Regex numeric = new Regex(pattern);
-                if (numeric.IsMatch(lexema))
+                bool match = numeric.IsMatch(lexema);
+                if (match)
                     return item;
             }
 
             throw new Exception("Not a Numeric Type");
+        }
+
+        public static Grammar ValidateCharacterRule(Grammar rule, string lexema)
+        {
+            string pattern = EnumUtils<Grammar>.GetDescription(rule);
+            Regex character = new Regex(pattern);
+            bool match = character.IsMatch(lexema);
+            if (match)
+                return rule;
+            else
+                throw new Exception("Not a Character Type");
+            
         }
         #endregion
 

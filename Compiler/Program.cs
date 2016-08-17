@@ -23,6 +23,11 @@ namespace Compiler
             Scanner scanner = new Scanner(content);
             TokenTable teste = scanner.MontarTokenTable();
 
+            foreach (var item in teste.ListaTokens)
+            {
+                Console.WriteLine(item.Lexema + " => " + item.Gramatica.ToString() + (item.Gramatica.ToString().Length < 12 ? "\t\tlinha: "  : "\tlinha: " )+ item.Linha +" coluna: " + item.Coluna);
+            }
+
             //Programa programa = new Programa(p);
             //programa.isValid();
 

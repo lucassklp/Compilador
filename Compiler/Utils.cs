@@ -23,10 +23,34 @@ namespace Compiler
             return RegexLibrary.IsLetter(caracter);
         }
 
+        public static bool IsComentarioDeLinha(char first, char second)
+        {
+            return first == '/' && second == '/';
+        }
+
+        public static bool IsLiteralCharDefinition(char caracter)
+        {
+            return caracter == '\'';
+        }
+
+        public static bool IsInicioComentarioDeBloco(char first, char second)
+        {
+            return first == '/' && second == '*';
+        }
+
+        public static bool IsFimComentarioDeBloco(char first, char second)
+        {
+            return first == '*' && second == '/';
+        }
 
         public static List<Grammar> GetNumericTypes()
         {
             return EnumUtils<Grammar>.GetFromCategory("NumericRules");
+        }
+
+        public static Grammar GetCharacterType()
+        {
+            return EnumUtils<Grammar>.GetFromCategory("CharRules").First();
         }
 
         public static Grammar? GetToken(char caracter)
