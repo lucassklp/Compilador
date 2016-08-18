@@ -17,111 +17,123 @@ namespace Compiler
         private int linha = 1;
         private int coluna = 0;
 
-        private char PreviousCharacter;
         private char CurrentCharacter;
         private char? NextCharacter;
+
+        private bool increment;
+
+        private Queue<Token> tokenTable;
 
 
         public Scanner(string code)
         {
+            this.tokenTable = new Queue<Token>();
             this.code = code;
+            this.GetTokenTable();
+
         }
 
-        public TokenTable MontarTokenTable()
+        public Token NextToken()
         {
-            TokenTable tokenTable = new TokenTable();
+            if (this.tokenTable.Count > 0)
+                return this.tokenTable.Dequeue();
+            else return null;
+        }
+
+        private void GetTokenTable()
+        {
 
             try
             {
                 while (this.counter < this.code.Length)
                 {
                     this.MoveToNextCharacter();
-                    //Para fins de debug
-                    if (this.CurrentCharacter == 'y')
-                        this.DEBUG++;
-
-                    Console.WriteLine(this.linha + " - " + this.coluna);
-
                     string lexema = string.Empty;
+
                     if (!Utils.isDelimitador(this.CurrentCharacter)) //Tratamento de delimitadores
                     {
                         if (this.NextCharacter != null) //Se não é último token
                         {
-                            if (Utils.GetToken(this.CurrentCharacter) != null && this.NextCharacter != '/' && this.NextCharacter != '*') //Tratamento de tokens
+                            if (Utils.IsDigit(this.CurrentCharacter)) //Tratamento de tipos numericos literais
                             {
-                                Grammar grammar = (Grammar)Utils.GetToken(this.CurrentCharacter);
-                                tokenTable.ListaTokens.Add(new Token(linha, coluna, grammar, this.CurrentCharacter.ToString()));
-                            }
-                            else
-                            {
-                                if (Utils.IsDigit(this.CurrentCharacter)) //Tratamento de tipos numericos literais
+                                do
                                 {
-                                    do
-                                    {
-                                        lexema += this.CurrentCharacter;
-                                        this.MoveToNextCharacter();
-                                    }
-                                    while (Utils.GetToken(this.CurrentCharacter) == null && !Utils.isDelimitador(this.CurrentCharacter) || Utils.IsNumericSymbol(this.CurrentCharacter));
-
-                                    Grammar grammar = RegexLibrary.ValidateNumericRules(Utils.GetNumericTypes(), lexema);
-                                    tokenTable.ListaTokens.Add(new Token(linha, coluna, grammar, lexema));
-                                }
-                                else if (Utils.IsLiteralCharDefinition(this.CurrentCharacter)) //Tratamento de tipo Char Literal
-                                {
-                                    do
-                                    {
-                                        lexema += this.CurrentCharacter;
-                                        this.MoveToNextCharacter();
-                                    }
-                                    while (!Utils.IsLiteralCharDefinition(this.CurrentCharacter));
                                     lexema += this.CurrentCharacter;
-
-                                    Grammar grammar = RegexLibrary.ValidateCharacterRule(Utils.GetCharacterType(), lexema);
-                                    tokenTable.ListaTokens.Add(new Token(linha, coluna, grammar, lexema));
-
-                                    if (Utils.GetToken(this.CurrentCharacter) != null)
-                                        tokenTable.ListaTokens.Add(new Token(linha, coluna, (Grammar)Utils.GetToken(this.CurrentCharacter), this.CurrentCharacter.ToString()));
+                                    this.MoveToNextCharacter();
                                 }
+                                while (!Utils.IsToken(this.CurrentCharacter, this.NextCharacter, false) && !Utils.isDelimitador(this.CurrentCharacter) || Utils.IsNumericSymbol(this.CurrentCharacter));
 
-                                else if (Utils.IsComentarioDeLinha(this.CurrentCharacter, (char)this.NextCharacter)) //Comentário de linha
+                                Grammar grammar = RegexLibrary.ValidateNumericRules(Utils.GetNumericTypes(), lexema);
+                                this.tokenTable.Enqueue(new Token(linha, coluna, grammar, lexema));
+                            }
+                            else if (Utils.IsLiteralCharDefinition(this.CurrentCharacter)) //Tratamento de tipo Char Literal
+                            {
+                                do
                                 {
-                                    while (this.CurrentCharacter != '\n')
-                                        this.MoveToNextCharacter();
+                                    lexema += this.CurrentCharacter;
+                                    this.MoveToNextCharacter();
                                 }
-                                else if (Utils.IsInicioComentarioDeBloco(this.CurrentCharacter, (char)this.NextCharacter))
-                                {
-                                    while (!Utils.IsFimComentarioDeBloco(this.CurrentCharacter, (char)this.NextCharacter))
-                                        this.MoveToNextCharacter();
-                                }
-                                else //Tratamento de palavras reservadas / identificadores
-                                {
-                                    while (Utils.GetToken(this.CurrentCharacter) == null && !Utils.isDelimitador(this.CurrentCharacter))
-                                    {
-                                        lexema += this.CurrentCharacter;
-                                        this.MoveToNextCharacter();
-                                    }
-                                    this.BackToPreviousCharacter();
+                                while (!Utils.IsLiteralCharDefinition(this.CurrentCharacter));
+                                lexema += this.CurrentCharacter;
 
-                                    if (Utils.GetPalavraReservada(lexema) != null)
-                                    {
-                                        Grammar palavraReservada = (Grammar)Utils.GetPalavraReservada(lexema);
-                                        tokenTable.ListaTokens.Add(new Token(linha, coluna, palavraReservada, lexema));
-                                    }
+
+                                Grammar grammar = RegexLibrary.ValidateCharacterRule(Utils.GetCharacterType(), lexema);
+                                this.tokenTable.Enqueue(new Token(linha, coluna, grammar, lexema));
+
+                            }
+                            else if (Utils.IsComentarioDeLinha(this.CurrentCharacter, (char)this.NextCharacter)) //Comentário de linha
+                            {
+                                while (this.CurrentCharacter != '\n')
+                                    this.MoveToNextCharacter();
+                            }
+                            else if (Utils.IsInicioComentarioDeBloco(this.CurrentCharacter, (char)this.NextCharacter))
+                            {
+                                while (!Utils.IsFimComentarioDeBloco(this.CurrentCharacter, (char)this.NextCharacter))
+                                    this.MoveToNextCharacter();
+                            }
+                            else if(Utils.IsToken(this.CurrentCharacter, this.NextCharacter, false))
+                            {
+                                if(Utils.IsToken(this.CurrentCharacter, this.NextCharacter, true))
+                                {
+                                    Grammar token = Utils.GetToken(Utils.Concat(this.CurrentCharacter, (char)this.NextCharacter));
+                                    tokenTable.Enqueue(new Token(this.linha, this.coluna, token, Utils.Concat(this.CurrentCharacter, (char)this.NextCharacter)));
+                                }
+                                else
+                                {
+                                    Grammar token = Utils.GetToken(this.CurrentCharacter);
+                                    tokenTable.Enqueue(new Token(this.linha, this.coluna, token, this.CurrentCharacter.ToString()));
                                 }
                             }
+                            else //Tratamento de palavras reservadas / identificadores
+                            {
+                                while (!Utils.IsToken(this.CurrentCharacter, this.NextCharacter, false) && !Utils.isDelimitador(this.CurrentCharacter))
+                                {
+                                    lexema += this.CurrentCharacter;
+                                    this.MoveToNextCharacter();
+                                }
+                                this.BackToPreviousCharacter();
+
+                                if (Utils.IsPalavraReservada(lexema))
+                                {
+                                    Grammar palavraReservada = Utils.GetPalavraReservada(lexema);
+                                    this.tokenTable.Enqueue(new Token(linha, coluna, palavraReservada, lexema));
+                                }
+                                else if (Utils.IsIdentifier(lexema))
+                                    this.tokenTable.Enqueue(new Token(linha, coluna, Grammar.Identificador, lexema));
+                                else
+                                    throw new Exception(string.Format("Token {0} não identificado. \tLinha: {1}, Coluna: {2}", this.CurrentCharacter, this.linha, this.coluna));
+                            }
+                            
                         }
                     }
                 }
 
-                tokenTable.ListaTokens.Add(new Token(linha, coluna, Grammar.EndOfFile, "EOF"));
+                tokenTable.Enqueue(new Token(linha, coluna, Grammar.EndOfFile, "EOF"));
             }
             catch(Exception ex)
             {
                 Console.WriteLine("Exception: " + ex.Message);
             }
-
-
-            return tokenTable;
         }
 
 
@@ -130,10 +142,11 @@ namespace Compiler
         /// </summary>
         private void MoveToNextCharacter()
         {
-            this.PreviousCharacter = this.CurrentCharacter;
             this.CurrentCharacter = this.code[++this.counter];
             this.NextCharacter = (this.counter > this.code.Length ? (char?)null : this.code[this.counter + 1]);
-            IncrementRowColumn(this.CurrentCharacter, ref this.linha, ref this.coluna);
+            if(this.increment)
+                IncrementRowColumn(this.CurrentCharacter, ref this.linha, ref this.coluna);
+            increment = true;
         }
 
         /// <summary>
@@ -141,10 +154,9 @@ namespace Compiler
         /// </summary>
         private void BackToPreviousCharacter()
         {
-            this.NextCharacter = (char?)this.CurrentCharacter;
-            this.CurrentCharacter = this.code[--this.counter];
-            this.PreviousCharacter = this.code[this.counter - 1];
-            this.DecrementRowColumn(this.CurrentCharacter, ref this.linha, ref this.coluna);
+            this.CurrentCharacter = this.code[(--this.counter)];
+            this.NextCharacter = this.code[this.counter + 1];
+            increment = false;
         }
 
         /// <summary>

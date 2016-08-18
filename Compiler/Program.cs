@@ -21,11 +21,11 @@ namespace Compiler
             }
 
             Scanner scanner = new Scanner(content);
-            TokenTable teste = scanner.MontarTokenTable();
-
-            foreach (var item in teste.ListaTokens)
+            Token token = scanner.NextToken();
+            while (token != null)
             {
-                Console.WriteLine(item.Lexema + " => " + item.Gramatica.ToString() + (item.Gramatica.ToString().Length < 12 ? "\t\tlinha: "  : "\tlinha: " )+ item.Linha +" coluna: " + item.Coluna);
+                Console.WriteLine(token.Lexema + " => " + token.Gramatica);
+                token = scanner.NextToken();
             }
 
             //Programa programa = new Programa(p);

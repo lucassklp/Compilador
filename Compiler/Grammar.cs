@@ -11,7 +11,7 @@ namespace Compiler
     {
 
         [Category("IdentifierRules")]
-        [Description(@"/([A-Za-z]|\_)([A-Za-z]|\_|[0-9])*/")]
+        [Description(@"([A-Za-z]|\_)([A-Za-z]|\_|[0-9])*")]
         Identificador,
 
         [Category("NumericRules")]
