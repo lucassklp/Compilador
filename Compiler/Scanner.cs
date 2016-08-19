@@ -42,14 +42,13 @@ namespace Compiler
 
         private void GetTokenTable()
         {
-
             try
             {
                 while (this.counter < this.code.Length)
                 {
                     this.MoveToNextCharacter();
                     string lexema = string.Empty;
-
+                    
                     if (!Utils.isDelimitador(this.CurrentCharacter)) //Tratamento de delimitadores
                     {
                         if (this.NextCharacter != null) //Se não é último token
@@ -62,6 +61,7 @@ namespace Compiler
                                     this.MoveToNextCharacter();
                                 }
                                 while (!Utils.IsToken(this.CurrentCharacter, this.NextCharacter, false) && !Utils.isDelimitador(this.CurrentCharacter) || Utils.IsNumericSymbol(this.CurrentCharacter));
+                                this.BackToPreviousCharacter();
 
                                 Grammar grammar = RegexLibrary.ValidateNumericRules(Utils.GetNumericTypes(), lexema);
                                 this.tokenTable.Enqueue(new Token(linha, coluna, grammar, lexema));
@@ -88,23 +88,23 @@ namespace Compiler
                             }
                             else if (Utils.IsInicioComentarioDeBloco(this.CurrentCharacter, (char)this.NextCharacter))
                             {
-                                while (!Utils.IsFimComentarioDeBloco(this.CurrentCharacter, (char)this.NextCharacter))
+                                while (!Utils.IsFimComentarioDeBloco(this.CurrentCharacter, this.NextCharacter))
                                     this.MoveToNextCharacter();
+                                this.MoveToNextCharacter();
                             }
-                            else if(Utils.IsToken(this.CurrentCharacter, this.NextCharacter, false))
+                            else if (Utils.IsToken(this.CurrentCharacter, this.NextCharacter, true))
                             {
-                                if(Utils.IsToken(this.CurrentCharacter, this.NextCharacter, true))
-                                {
-                                    Grammar token = Utils.GetToken(Utils.Concat(this.CurrentCharacter, (char)this.NextCharacter));
-                                    tokenTable.Enqueue(new Token(this.linha, this.coluna, token, Utils.Concat(this.CurrentCharacter, (char)this.NextCharacter)));
-                                }
-                                else
-                                {
-                                    Grammar token = Utils.GetToken(this.CurrentCharacter);
-                                    tokenTable.Enqueue(new Token(this.linha, this.coluna, token, this.CurrentCharacter.ToString()));
-                                }
+                                Grammar token = Utils.GetToken(Utils.Concat(this.CurrentCharacter, (char)this.NextCharacter));
+                                tokenTable.Enqueue(new Token(this.linha, this.coluna, token, Utils.Concat(this.CurrentCharacter, (char)this.NextCharacter)));
+                                this.MoveToNextCharacter();
                             }
-                            else //Tratamento de palavras reservadas / identificadores
+
+                            else if (Utils.IsToken(this.CurrentCharacter, this.NextCharacter, false))
+                            {
+                                Grammar token = Utils.GetToken(this.CurrentCharacter);
+                                tokenTable.Enqueue(new Token(this.linha, this.coluna, token, this.CurrentCharacter.ToString()));
+                            }
+                            else if (Utils.IsLetter(this.CurrentCharacter))
                             {
                                 while (!Utils.IsToken(this.CurrentCharacter, this.NextCharacter, false) && !Utils.isDelimitador(this.CurrentCharacter))
                                 {
@@ -121,8 +121,13 @@ namespace Compiler
                                 else if (Utils.IsIdentifier(lexema))
                                     this.tokenTable.Enqueue(new Token(linha, coluna, Grammar.Identificador, lexema));
                                 else
-                                    throw new Exception(string.Format("Token {0} não identificado. \tLinha: {1}, Coluna: {2}", this.CurrentCharacter, this.linha, this.coluna));
+                                    throw new Exception(string.Format("Sequencia '{0}' inválida. \tLinha: {1}, Coluna: {2}", lexema, this.linha, this.coluna));
                             }
+                            else
+                            {
+                                throw new Exception(string.Format("Token {0} não identificado. \tLinha: {1}, Coluna: {2}", this.CurrentCharacter, this.linha, this.coluna));
+                            }
+
                             
                         }
                     }
@@ -143,7 +148,7 @@ namespace Compiler
         private void MoveToNextCharacter()
         {
             this.CurrentCharacter = this.code[++this.counter];
-            this.NextCharacter = (this.counter > this.code.Length ? (char?)null : this.code[this.counter + 1]);
+            this.NextCharacter = (this.counter >= this.code.Length - 1 ? (char?)null : this.code[this.counter + 1]);
             if(this.increment)
                 IncrementRowColumn(this.CurrentCharacter, ref this.linha, ref this.coluna);
             increment = true;

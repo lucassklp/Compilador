@@ -9,29 +9,23 @@ namespace Compiler
 {
     class RegexLibrary
     {
-
-
+        
         #region Checkers
         public static bool IsDigit(char caracter)
         {
-            return (new Regex("[0-9]")).IsMatch(caracter.ToString());
+            return Regex.IsMatch(caracter.ToString(), "[0-9]");
         }
 
         public static bool IsNumericSymbol(char caracter)
         {
-            return (new Regex(@"[0-9]|\.")).IsMatch(caracter.ToString());
+            return Regex.IsMatch(caracter.ToString(), @"[0-9]|\.");
         }
 
         public static bool IsLetter(char caracter)
         {
-            return (new Regex("[A-Za-z]")).IsMatch(caracter.ToString());
+            return Regex.IsMatch(caracter.ToString(), "[A-Za-z]");
         }
-
-        public static bool IsIdentifier(string lexema)
-        {
-            return (new Regex(@"([A-Za-z]|_)([A-Za-z]|_|[0-9])*")).IsMatch(lexema);
-        }
-
+        
         #endregion
 
         #region Rules Validation

@@ -25,12 +25,7 @@ namespace Compiler
   
             if (testComposition)
             {
-                string composition;
-                if (nextCharacter != null)
-                    composition = Concat(firstCharacter, (char)nextCharacter);
-                else
-                    return false;
-
+                string composition = firstCharacter.ToString() + ((char)nextCharacter).ToString();
                 return EnumUtils<Grammar>.List().Exists(x => EnumUtils<Grammar>.GetDescription(x) == composition);
             }
             else
@@ -46,7 +41,9 @@ namespace Compiler
 
         public static bool IsIdentifier(string identifier)
         {
-            return RegexLibrary.IsIdentifier(identifier);
+            string pattern = EnumUtils<Grammar>.GetDescription(Grammar.Identificador);
+
+            return Regex.IsMatch(identifier, pattern);
         }
 
         public static bool IsNumericSymbol(char caracter)
@@ -74,9 +71,12 @@ namespace Compiler
             return first == '/' && second == '*';
         }
 
-        public static bool IsFimComentarioDeBloco(char first, char second)
+        public static bool IsFimComentarioDeBloco(char first, char? second)
         {
-            return first == '*' && second == '/';
+            if (second == null)
+                throw new Exception("Fim de comentário esperado não foi encontrado");
+            else
+                return first == '*' && ((char)second) == '/';
         }
 
         public static List<Grammar> GetNumericTypes()

@@ -11,19 +11,19 @@ namespace Compiler
     {
 
         [Category("IdentifierRules")]
-        [Description(@"([A-Za-z]|\_)([A-Za-z]|\_|[0-9])*")]
+        [Description(@"^([A-Za-z]|_)([A-Za-z]|_|[0-9])*$")]
         Identificador,
 
         [Category("NumericRules")]
-        [Description(@"[0-9]+")]
+        [Description(@"^[0-9]+$")]
         TypeIntLiteral,
 
         [Category("NumericRules")]
-        [Description(@"/[0-9]*\.[0-9]+/")]
+        [Description(@"^[0-9]*\.[0-9]+$")]
         TypeFloatLiteral,
 
         [Category("CharRules")]
-        [Description(@"\'([A-Za-z]|[0-9])\'")]
+        [Description(@"^\'([A-Za-z]|[0-9])\'$")]
         TypeCharLiteral,
 
 
