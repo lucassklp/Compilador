@@ -12,7 +12,7 @@ namespace Compiler
     {
         static void Main(string[] args)
         {
-
+			//Test git linux
             string file = @"C:\ERROS_SCANNER.txt";
             //string file = @"C:\arquivo_exemplo.txt";
             //string file = @"C:\test_scanner.txt";
