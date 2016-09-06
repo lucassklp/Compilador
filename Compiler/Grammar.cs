@@ -16,15 +16,15 @@ namespace Compiler
 
         [Category("NumericRules")]
         [Description(@"^[0-9]+$")]
-        TypeIntLiteral,
+        IntValue,
 
         [Category("NumericRules")]
         [Description(@"^[0-9]*\.[0-9]+$")]
-        TypeFloatLiteral,
+        FloatValue,
 
         [Category("CharRules")]
-        [Description(@"^\'([A-Za-z]|[0-9])\'$")]
-        TypeCharLiteral,
+        [Description(@"^([A-Za-z]|[0-9])$")]
+        CharValue,
 
 
         [Category("PalavraReservada")]

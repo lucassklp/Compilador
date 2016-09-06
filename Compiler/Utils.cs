@@ -9,6 +9,11 @@ namespace Compiler
 {
     class Utils
     {
+        public static bool IsEndOfFile(int counter, int length)
+        {
+            return !(counter < length);
+        }
+
         public static bool IsDigit(char caracter)
         {
             return RegexLibrary.IsDigit(caracter);
@@ -26,7 +31,9 @@ namespace Compiler
             if (testComposition)
             {
                 string composition = firstCharacter.ToString() + ((char)nextCharacter).ToString();
-                return EnumUtils<Grammar>.List().Exists(x => EnumUtils<Grammar>.GetDescription(x) == composition);
+                return EnumUtils<Grammar>.List().
+                    Exists(x => EnumUtils<Grammar>.GetDescription(x) == composition && 
+                    EnumUtils<Grammar>.GetCategory(x) != "PalavraReservada");
             }
             else
                 return isSingleToken;
