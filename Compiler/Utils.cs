@@ -21,7 +21,7 @@ namespace Compiler
 
         public static bool IsToken(char firstCharacter)
         {
-            return EnumUtils<Grammar>.List().Exists(x => EnumUtils<Grammar>.GetDescription(x) == firstCharacter.ToString());
+            return EnumUtils<Gramatica>.List().Exists(x => EnumUtils<Gramatica>.GetDescription(x) == firstCharacter.ToString());
         }
 
         public static bool IsToken(char firstCharacter, char? nextCharacter, bool testComposition)
@@ -31,9 +31,9 @@ namespace Compiler
             if (testComposition)
             {
                 string composition = firstCharacter.ToString() + ((char)nextCharacter).ToString();
-                return EnumUtils<Grammar>.List().
-                    Exists(x => EnumUtils<Grammar>.GetDescription(x) == composition && 
-                    EnumUtils<Grammar>.GetCategory(x) != "PalavraReservada");
+                return EnumUtils<Gramatica>.List().
+                    Exists(x => EnumUtils<Gramatica>.GetDescription(x) == composition && 
+                    EnumUtils<Gramatica>.GetCategory(x) != "PalavraReservada");
             }
             else
                 return isSingleToken;
@@ -42,13 +42,18 @@ namespace Compiler
 
         public static bool IsPalavraReservada(string palavraReservada)
         {
-            return EnumUtils<Grammar>.GetFromCategory("PalavraReservada").
-                Exists(x => EnumUtils<Grammar>.GetDescription(x) == palavraReservada);
+            return EnumUtils<Gramatica>.GetFromCategory("PalavraReservada").
+                Exists(x => EnumUtils<Gramatica>.GetDescription(x) == palavraReservada);
+        }
+
+        public static bool IsDigitOrPunto(char currentCharacter)
+        {
+            return RegexLibrary.IsDigitOrPunto(currentCharacter);
         }
 
         public static bool IsIdentifier(string identifier)
         {
-            string pattern = EnumUtils<Grammar>.GetDescription(Grammar.Identificador);
+            string pattern = EnumUtils<Gramatica>.GetDescription(Gramatica.Identificador);
 
             return Regex.IsMatch(identifier, pattern);
         }
@@ -86,14 +91,14 @@ namespace Compiler
                 return first == '*' && ((char)second) == '/';
         }
 
-        public static List<Grammar> GetNumericTypes()
+        public static List<Gramatica> GetNumericTypes()
         {
-            return EnumUtils<Grammar>.GetFromCategory("NumericRules");
+            return EnumUtils<Gramatica>.GetFromCategory("NumericRules");
         }
 
-        public static Grammar GetCharacterType()
+        public static Gramatica GetCharacterType()
         {
-            return EnumUtils<Grammar>.GetFromCategory("CharRules").First();
+            return EnumUtils<Gramatica>.GetFromCategory("CharRules").First();
         }
 
 
@@ -102,21 +107,21 @@ namespace Compiler
             return (first.ToString() + last.ToString());
         }
 
-        public static Grammar GetToken(string token)
+        public static Gramatica GetToken(string token)
         {
-            return EnumUtils<Grammar>.List().
-                    Find(x => x == EnumUtils<Grammar>.GetFromDescription(token));
+            return EnumUtils<Gramatica>.List().
+                    Find(x => x == EnumUtils<Gramatica>.GetFromDescription(token));
         }
-        public static Grammar GetToken(char token)
+        public static Gramatica GetToken(char token)
         {
-            return EnumUtils<Grammar>.List().
-                    Find(x => x == EnumUtils<Grammar>.GetFromDescription(token.ToString()));    
+            return EnumUtils<Gramatica>.List().
+                    Find(x => x == EnumUtils<Gramatica>.GetFromDescription(token.ToString()));    
         }
 
-        public static Grammar GetPalavraReservada(string value)
+        public static Gramatica GetPalavraReservada(string value)
         {
-            return EnumUtils<Grammar>.GetFromCategory("PalavraReservada").
-                Find(x => EnumUtils<Grammar>.GetDescription(x) == value);
+            return EnumUtils<Gramatica>.GetFromCategory("PalavraReservada").
+                Find(x => EnumUtils<Gramatica>.GetDescription(x) == value);
         }
 
         public static bool isDelimitador(char delimit)

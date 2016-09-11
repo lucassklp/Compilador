@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Compiler
 {
-    public enum Grammar : int
+    public enum Gramatica : int
     {
 
         [Category("IdentifierRules")]

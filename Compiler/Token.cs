@@ -10,10 +10,10 @@ namespace Compiler
     {
         public int Linha { get; private set; }
         public int Coluna { get; private set; }
-        public Grammar Gramatica{ get; private set;}
+        public Gramatica Gramatica{ get; private set;}
         public string Lexema { get; private set; }
 
-        public Token(int Linha, int Coluna, Grammar Gramatica, string Lexema)
+        public Token(int Linha, int Coluna, Gramatica Gramatica, string Lexema)
         {
             this.Linha = Linha;
             this.Coluna = Coluna;

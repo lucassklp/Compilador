@@ -9,8 +9,14 @@ namespace Compiler
 {
     class RegexLibrary
     {
-        
+
         #region Checkers
+
+        internal static bool IsDigitOrPunto(char currentCharacter)
+        {
+            return Regex.IsMatch(currentCharacter.ToString(), @"[0-9]|\.");
+        }
+
         public static bool IsDigit(char caracter)
         {
             return Regex.IsMatch(caracter.ToString(), "[0-9]");
@@ -18,7 +24,7 @@ namespace Compiler
 
         public static bool IsNumericSymbol(char caracter)
         {
-            return Regex.IsMatch(caracter.ToString(), @"[0-9]|\.");
+            return Regex.IsMatch(caracter.ToString(), @"[0-9]");
         }
 
         public static bool IsLetter(char caracter)
@@ -29,11 +35,11 @@ namespace Compiler
         #endregion
 
         #region Rules Validation
-        public static Grammar ValidateNumericRules(List<Grammar> numericTypes, string lexema)
+        public static Gramatica ValidateNumericRules(List<Gramatica> numericTypes, string lexema)
         {
             foreach (var item in numericTypes)
             {
-                string pattern = EnumUtils<Grammar>.GetDescription(item);
+                string pattern = EnumUtils<Gramatica>.GetDescription(item);
                 Regex numeric = new Regex(pattern);
                 bool match = numeric.IsMatch(lexema);
                 if (match)
@@ -43,9 +49,9 @@ namespace Compiler
             throw new Exception("Not a Numeric Type");
         }
 
-        public static Grammar ValidateCharacterRule(Grammar rule, string lexema)
+        public static Gramatica ValidateCharacterRule(Gramatica rule, string lexema)
         {
-            string pattern = EnumUtils<Grammar>.GetDescription(rule);
+            string pattern = EnumUtils<Gramatica>.GetDescription(rule);
             Regex character = new Regex(pattern);
             bool match = character.IsMatch(lexema);
             if (match)
@@ -54,6 +60,7 @@ namespace Compiler
                 throw new Exception("Not a Character Type");
             
         }
+
         #endregion
 
     }
