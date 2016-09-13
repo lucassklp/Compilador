@@ -41,21 +41,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Grammar.cs" />
-    <Compile Include="GrammarCategory.cs" />
-    <Compile Include="Interfaces\ICode.cs" />
+    <Compile Include="Gramatica.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegexLibrary.cs" />
     <Compile Include="Scanner.cs" />
     <Compile Include="Token.cs" />
-    <Compile Include="TokenTable.cs" />
-    <Compile Include="Tree\Bloco.cs" />
-    <Compile Include="Tree\Comando.cs" />
-    <Compile Include="Interfaces\IVerifier.cs" />
-    <Compile Include="Tree\DeclaracaoVariavel.cs" />
-    <Compile Include="Tree\Programa.cs" />
     <Compile Include="EnumUtils.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
@@ -63,6 +55,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Exceptions\Parser\" />
+    <Folder Include="Exceptions\Scanner\" />
     <Folder Include="Files\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

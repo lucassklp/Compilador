@@ -35,7 +35,11 @@ namespace Compiler
         public Token NextToken()
         {
             if (this.tokenTable.Count > 0)
-                return this.tokenTable.Dequeue();
+            {
+                Token retorno = tokenTable.Dequeue();
+                Console.WriteLine(retorno.Gramatica.ToString());
+                return retorno;
+            }
             else return null;
         }
 

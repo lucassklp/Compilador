@@ -21,16 +21,15 @@ namespace Compiler
             }
 
             Scanner scanner = new Scanner(content);
-            Token token = scanner.NextToken();
-            //while (token != null)
-            //{
-            //    string lexemaGrammar = string.Format("{0} => {1}", token.Lexema, token.Gramatica.ToString());
-            //    string linhaColuna = string.Format("Linha: {0}, Coluna: {1}", token.Linha, token.Coluna);
-            //    Console.WriteLine(lexemaGrammar + doTabs(lexemaGrammar.Length) + linhaColuna);
-            //    token = scanner.NextToken();
-            //}
-
             Console.WriteLine("\n ----------- FIM DO SCANNER -------------");
+
+
+
+            Parser parser = new Parser(scanner);
+
+
+
+
             Console.ReadKey();
         }
 
