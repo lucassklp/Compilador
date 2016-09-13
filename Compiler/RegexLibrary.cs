@@ -31,12 +31,33 @@ namespace Compiler
         {
             return Regex.IsMatch(caracter.ToString(), "[A-Za-z]");
         }
-        
+
         #endregion
 
-        #region Rules Validation
-        public static Gramatica ValidateNumericRules(List<Gramatica> numericTypes, string lexema)
+        #region Type Checkers
+
+
+        public static bool IsNumericType(string lexema)
         {
+            var numericTypes = EnumUtils<Gramatica>.GetFromCategory("NumericRules");
+            foreach (var item in numericTypes)
+            {
+                string pattern = EnumUtils<Gramatica>.GetDescription(item);
+                Regex numeric = new Regex(pattern);
+                bool match = numeric.IsMatch(lexema);
+                if (match)
+                    return true;
+            }
+
+            return false;
+        }
+
+
+
+
+        public static Gramatica GetNumericType(string lexema)
+        {
+            var numericTypes = EnumUtils<Gramatica>.GetFromCategory("NumericRules");
             foreach (var item in numericTypes)
             {
                 string pattern = EnumUtils<Gramatica>.GetDescription(item);
@@ -45,19 +66,21 @@ namespace Compiler
                 if (match)
                     return item;
             }
-
-            throw new Exception("Not a Numeric Type");
+             
+            return default(Gramatica);
         }
 
-        public static Gramatica ValidateCharacterRule(Gramatica rule, string lexema)
+        public static bool IsValidCharacter(string lexema)
         {
+            var rule = EnumUtils<Gramatica>.GetFromCategory("CharRules").First();
+
             string pattern = EnumUtils<Gramatica>.GetDescription(rule);
             Regex character = new Regex(pattern);
             bool match = character.IsMatch(lexema);
             if (match)
-                return rule;
+                return true;
             else
-                throw new Exception("Not a Character Type");
+                return false;
             
         }
 

@@ -24,20 +24,17 @@ namespace Compiler
             return EnumUtils<Gramatica>.List().Exists(x => EnumUtils<Gramatica>.GetDescription(x) == firstCharacter.ToString());
         }
 
-        public static bool IsToken(char firstCharacter, char? nextCharacter, bool testComposition)
+        public static bool IsToken(char firstCharacter, char? nextCharacter)
         {
-            bool isSingleToken = IsToken(firstCharacter);
-  
-            if (testComposition)
+            if (nextCharacter == null)
+                return false;
+            else
             {
-                string composition = firstCharacter.ToString() + ((char)nextCharacter).ToString();
+                string composition = Concat(firstCharacter, nextCharacter);
                 return EnumUtils<Gramatica>.List().
-                    Exists(x => EnumUtils<Gramatica>.GetDescription(x) == composition && 
+                    Exists(x => EnumUtils<Gramatica>.GetDescription(x) == composition &&
                     EnumUtils<Gramatica>.GetCategory(x) != "PalavraReservada");
             }
-            else
-                return isSingleToken;
-            
         }
 
         public static bool IsPalavraReservada(string palavraReservada)
@@ -58,7 +55,7 @@ namespace Compiler
             return Regex.IsMatch(identifier, pattern);
         }
 
-        public static bool IsNumericSymbol(char caracter)
+        public static bool IsNumber(char caracter)
         {
             return RegexLibrary.IsNumericSymbol(caracter);
         }
@@ -68,9 +65,12 @@ namespace Compiler
             return RegexLibrary.IsLetter(caracter);
         }
 
-        public static bool IsComentarioDeLinha(char first, char second)
+        public static bool IsComentarioDeLinha(char first, char? second)
         {
-            return first == '/' && second == '/';
+            if (second == null)
+                return false;
+            else
+                return first == '/' && second == '/';
         }
 
         public static bool IsLiteralCharDefinition(char caracter)
@@ -78,9 +78,12 @@ namespace Compiler
             return caracter == '\'';
         }
 
-        public static bool IsInicioComentarioDeBloco(char first, char second)
+        public static bool IsInicioComentarioDeBloco(char first, char? second)
         {
-            return first == '/' && second == '*';
+            if (second == null)
+                return false;
+            else
+                return first == '/' && second == '*';
         }
 
         public static bool IsFimComentarioDeBloco(char first, char? second)
@@ -91,21 +94,21 @@ namespace Compiler
                 return first == '*' && ((char)second) == '/';
         }
 
-        public static List<Gramatica> GetNumericTypes()
-        {
-            return EnumUtils<Gramatica>.GetFromCategory("NumericRules");
-        }
-
-        public static Gramatica GetCharacterType()
-        {
-            return EnumUtils<Gramatica>.GetFromCategory("CharRules").First();
-        }
-
 
         public static string Concat(char first, char last)
         {
             return (first.ToString() + last.ToString());
         }
+
+        public static string Concat(char first, char? last)
+        {
+            if (last == null)
+                return first.ToString();
+            else
+                return (first.ToString() + ((char)last).ToString());
+        }
+
+
 
         public static Gramatica GetToken(string token)
         {

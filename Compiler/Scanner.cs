@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Compiler.Exceptions.Scanner;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -29,17 +30,12 @@ namespace Compiler
             this.tokenTable = new Queue<Token>();
             this.code = code;
             this.BuildTokenTable();
-
         }
 
         public Token NextToken()
         {
             if (this.tokenTable.Count > 0)
-            {
-                Token retorno = tokenTable.Dequeue();
-                Console.WriteLine(retorno.Gramatica.ToString());
-                return retorno;
-            }
+                return tokenTable.Dequeue();
             else return null;
         }
 
@@ -64,10 +60,8 @@ namespace Compiler
                     {
                         if (Utils.IsDigitOrPunto(this.CurrentCharacter)) //Tratamento de tipos numericos literais
                         {
-                            while (!Utils.IsToken(this.CurrentCharacter, this.NextCharacter, false) &&
-                                    !Utils.isDelimitador(this.CurrentCharacter) &&
-                                    Utils.IsNumericSymbol(this.CurrentCharacter) &&
-                                    !Utils.IsEndOfFile(this.counter, this.code.Length))
+                            while (Utils.IsNumber(this.CurrentCharacter) &&
+                                   !Utils.IsEndOfFile(this.counter, this.code.Length))
                             {
                                 lexema += this.CurrentCharacter;
                                 this.MoveToNextCharacter();
@@ -77,10 +71,8 @@ namespace Compiler
                             {
                                 lexema += CurrentCharacter;
                                 this.MoveToNextCharacter();
-                                while (!Utils.IsToken(this.CurrentCharacter, this.NextCharacter, false) &&
-                                        !Utils.isDelimitador(this.CurrentCharacter) &&
-                                        Utils.IsNumericSymbol(this.CurrentCharacter) &&
-                                        !Utils.IsEndOfFile(this.counter, this.code.Length))
+                                while (Utils.IsNumber(this.CurrentCharacter) &&
+                                       !Utils.IsEndOfFile(this.counter, this.code.Length))
                                 {
                                     lexema += this.CurrentCharacter;
                                     this.MoveToNextCharacter();
@@ -88,8 +80,13 @@ namespace Compiler
                             }
 
 
-                            Gramatica grammar = RegexLibrary.ValidateNumericRules(Utils.GetNumericTypes(), lexema);
-                            this.tokenTable.Enqueue(new Token(linha, coluna, grammar, lexema));
+                            if (RegexLibrary.IsNumericType(lexema))
+                            {
+                                Gramatica grammar = RegexLibrary.GetNumericType(lexema);
+                                this.tokenTable.Enqueue(new Token(linha, coluna, grammar, lexema));
+                            }
+                            else
+                                throw new InvalidNumericFormatException(lexema, this.CurrentCharacter, linha, coluna);
                         }
                         else if (Utils.IsLiteralCharDefinition(this.CurrentCharacter)) //Tratamento de tipo Char Literal
                         {
@@ -101,33 +98,35 @@ namespace Compiler
                                 this.MoveToNextCharacter();
                             }
 
-
-                            Gramatica grammar = RegexLibrary.ValidateCharacterRule(Utils.GetCharacterType(), lexema);
-                            this.tokenTable.Enqueue(new Token(linha, coluna, grammar, lexema));
-
-                            this.MoveToNextCharacter();
+                            if (RegexLibrary.IsValidCharacter(lexema))
+                            {
+                                this.tokenTable.Enqueue(new Token(linha, coluna, Gramatica.CharValue, lexema));
+                                this.MoveToNextCharacter();
+                            }
+                            
 
                         }
-                        else if (Utils.IsComentarioDeLinha(this.CurrentCharacter, (char)this.NextCharacter)) //Comentário de linha
+                        else if (Utils.IsComentarioDeLinha(this.CurrentCharacter, this.NextCharacter)) //Comentário de linha
                         {
                             while (this.CurrentCharacter != '\n')
                                 this.MoveToNextCharacter();
                         }
-                        else if (Utils.IsInicioComentarioDeBloco(this.CurrentCharacter, (char)this.NextCharacter))
+                        else if (Utils.IsInicioComentarioDeBloco(this.CurrentCharacter, this.NextCharacter))
                         {
                             while (!Utils.IsFimComentarioDeBloco(this.CurrentCharacter, this.NextCharacter))
                                 this.MoveToNextCharacter();
                             this.MoveToNextCharacter();
                             this.MoveToNextCharacter();
                         }
-                        else if (Utils.IsToken(this.CurrentCharacter, this.NextCharacter, true))
+                        else if (Utils.IsToken(this.CurrentCharacter, this.NextCharacter))
                         {
-                            Gramatica token = Utils.GetToken(Utils.Concat(this.CurrentCharacter, (char)this.NextCharacter));
+                            Gramatica token = Utils.GetToken(Utils.Concat(this.CurrentCharacter, this.NextCharacter));
                             tokenTable.Enqueue(new Token(this.linha, this.coluna, token, Utils.Concat(this.CurrentCharacter, (char)this.NextCharacter)));
+                            this.MoveToNextCharacter();
                             this.MoveToNextCharacter();
                         }
 
-                        else if (Utils.IsToken(this.CurrentCharacter, this.NextCharacter, false))
+                        else if (Utils.IsToken(this.CurrentCharacter))
                         {
                             Gramatica token = Utils.GetToken(this.CurrentCharacter);
                             tokenTable.Enqueue(new Token(this.linha, this.coluna, token, this.CurrentCharacter.ToString()));
@@ -135,9 +134,9 @@ namespace Compiler
                         }
                         else if (Utils.IsLetter(this.CurrentCharacter))
                         {
-                            while (!Utils.IsToken(this.CurrentCharacter, this.NextCharacter, false) &&
-                                    !Utils.isDelimitador(this.CurrentCharacter) &&
-                                    !Utils.IsEndOfFile(this.counter, this.code.Length))
+                            while (!Utils.IsToken(this.CurrentCharacter) &&
+                                   !Utils.isDelimitador(this.CurrentCharacter) &&
+                                   !Utils.IsEndOfFile(this.counter, this.code.Length))
                             {
                                 lexema += this.CurrentCharacter;
                                 this.MoveToNextCharacter();
@@ -168,7 +167,7 @@ namespace Compiler
             }
             catch(Exception ex)
             {
-                Console.WriteLine("{0}: Linha: {1}, Coluna: {2}", ex.Message, linha, coluna);
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -188,7 +187,6 @@ namespace Compiler
             catch
             {
                 this.CurrentCharacter = '\0';
-                IncrementRowColumn(this.CurrentCharacter, ref this.linha, ref this.coluna);
             }
             return this.CurrentCharacter;
         }

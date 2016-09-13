@@ -11,8 +11,7 @@ namespace Compiler
     {
         static void Main(string[] args)
         {
-			
-            string file = @"C:\arquivo_exemplo.txt";
+            string file = args[0];
 
             string content;
             using (StreamReader sr = new StreamReader(file))
@@ -21,11 +20,7 @@ namespace Compiler
             }
 
             Scanner scanner = new Scanner(content);
-            Console.WriteLine("\n ----------- FIM DO SCANNER -------------");
-
-
-
-            Parser parser = new Parser(scanner);
+            //Parser parser = new Parser(scanner);
 
 
 
