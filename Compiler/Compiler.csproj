@@ -46,8 +46,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Exceptions\ExceptionHelper.cs" />
+    <Compile Include="Exceptions\Scanner\EndOfFileBlockCommentException.cs" />
+    <Compile Include="Exceptions\Scanner\ExpectedEndOfCharacterException.cs" />
+    <Compile Include="Exceptions\Scanner\InvalidCharSequenceException.cs" />
     <Compile Include="Exceptions\Scanner\InvalidNumericFormatException.cs" />
-    <Compile Include="Exceptions\Scanner\TokenNaoIdentificadoException.cs" />
+    <Compile Include="Exceptions\Scanner\TokenNotIdentifiedException.cs" />
     <Compile Include="Gramatica.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />

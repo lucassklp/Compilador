@@ -14,6 +14,11 @@ namespace Compiler
             return !(counter < length);
         }
 
+        public static bool IsLetterOrUnderline(char currentChar)
+        {
+            return RegexLibrary.IsLetterOrUnderline(currentChar);
+        }
+
         public static bool IsDigit(char caracter)
         {
             return RegexLibrary.IsDigit(caracter);
@@ -51,7 +56,6 @@ namespace Compiler
         public static bool IsIdentifier(string identifier)
         {
             string pattern = EnumUtils<Gramatica>.GetDescription(Gramatica.Identificador);
-
             return Regex.IsMatch(identifier, pattern);
         }
 
@@ -89,7 +93,7 @@ namespace Compiler
         public static bool IsFimComentarioDeBloco(char first, char? second)
         {
             if (second == null)
-                throw new Exception("Fim de comentário esperado não foi encontrado");
+                return false;
             else
                 return first == '*' && ((char)second) == '/';
         }
@@ -127,16 +131,10 @@ namespace Compiler
                 Find(x => EnumUtils<Gramatica>.GetDescription(x) == value);
         }
 
-        public static bool isDelimitador(char delimit)
+        public static bool IsDelimitador(char delimit)
         {
-            List<char> delimitadores = new List<char>();
-            delimitadores.Add(' ');
-            delimitadores.Add('\t');
-            delimitadores.Add('\n');
-            delimitadores.Add('\r');
-            bool retorno = delimitadores.Exists(x => x == delimit);
-            return retorno;
-
+            char[] Delimitadores = { ' ', '\t', '\n', '\r' };
+            return Delimitadores.Contains(delimit);
         }
 
 

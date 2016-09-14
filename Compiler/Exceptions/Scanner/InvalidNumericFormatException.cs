@@ -11,7 +11,7 @@ namespace Compiler.Exceptions.Scanner
         const string invalidNumericFormat = "A sequencia numérica {0} está em um formato incorreto.";
 
         public InvalidNumericFormatException(string lexema, char currentCharacter, int linha, int coluna)
-            : base(ExceptionHelper.FormatMessage(string.Format(invalidNumericFormat, lexema), linha, coluna, currentCharacter))
+            : base(ExceptionHelper.FormatMessage(string.Format(invalidNumericFormat, ExceptionHelper.GetCharacterName(lexema)), linha, coluna, ExceptionHelper.GetCharacterName(currentCharacter)))
         {
         }
     }

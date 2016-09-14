@@ -20,6 +20,15 @@ namespace Compiler
             }
 
             Scanner scanner = new Scanner(content);
+            Token k = scanner.NextToken();
+            while(k != null)
+            {
+                string msg = k.Lexema + "  =>  " + k.Gramatica.ToString();
+                Console.WriteLine(msg + doTabs(msg.Length) + string.Format("Linha: {0}, Coluna: {1}", k.Linha, k.Coluna));
+                k = scanner.NextToken();
+            }
+
+
             //Parser parser = new Parser(scanner);
 
 

@@ -8,18 +8,38 @@ namespace Compiler.Exceptions
 {
     class ExceptionHelper : Exception
     {
-        public static string FormatMessage(string Error, int Linha, int Coluna, char ultimoCaracterLido)
+        public static string FormatMessage(string Error, int Linha, int Coluna, string ultimoCaracterLido)
         {
-            string ultimoCaractereLido_String;
-            if (ultimoCaracterLido == '\t')
-                ultimoCaractereLido_String = @"Tabulação (\t)";
-            else if (ultimoCaracterLido == '\r' || ultimoCaracterLido == '\n')
-                ultimoCaractereLido_String = "Return (Enter)";
-            else
-                ultimoCaractereLido_String = ultimoCaracterLido.ToString();
-            string b = string.Format("{0} \nLinha: {1}, Coluna: {2}, Ultimo caractere lido: \'{3}\'.", Error, Linha, Coluna, ultimoCaractereLido_String);
-
-            return b;
+            return string.Format("{0} \nLinha: {1}, Coluna: {2}, Ultimo caractere lido: \'{3}\'.", Error, Linha, Coluna, GetCharacterName(ultimoCaracterLido));
         }
+
+
+        public static string GetCharacterName(char character)
+        {
+            string characterName;
+            if (character == '\t')
+                characterName = @"\t";
+            else if (character == '\n')
+                characterName = @"\n";
+            else if (character == '\r')
+                characterName = @"\r";
+            else if (character == '\0')
+                characterName = @"\0";
+            else
+                characterName = character.ToString();
+
+            return characterName;
+        }
+
+
+        public static string GetCharacterName(string lexema)
+        {
+            string result = string.Empty;
+            foreach (char element in lexema)
+                result += GetCharacterName(element);
+            return result;
+        }
+
+
     }
 }

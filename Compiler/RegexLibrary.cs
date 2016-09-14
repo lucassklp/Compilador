@@ -29,8 +29,15 @@ namespace Compiler
 
         public static bool IsLetter(char caracter)
         {
-            return Regex.IsMatch(caracter.ToString(), "[A-Za-z]");
+            return Regex.IsMatch(caracter.ToString(), @"[A-Za-z]");
         }
+
+        public static bool IsLetterOrUnderline(char caracter)
+        {
+            return Regex.IsMatch(caracter.ToString(), @"[A-Za-z]|_");
+        }
+
+
 
         #endregion
 
