@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\Parser\ExpectedTokenException.cs" />
     <Compile Include="Gramatica.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />
@@ -55,7 +56,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Exceptions\Parser\" />
     <Folder Include="Exceptions\Scanner\" />
     <Folder Include="Files\" />
   </ItemGroup>

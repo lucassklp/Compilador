@@ -21,10 +21,6 @@ namespace Compiler
             }
 
             Scanner scanner = new Scanner(content);
-            Console.WriteLine("\n ----------- FIM DO SCANNER -------------");
-
-
-
             Parser parser = new Parser(scanner);
 
 
