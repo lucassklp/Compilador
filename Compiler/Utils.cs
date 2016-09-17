@@ -14,6 +14,11 @@ namespace Compiler
             return !(counter < length);
         }
 
+        public static bool IsLetterOrUnderline(char currentChar)
+        {
+            return RegexLibrary.IsLetterOrUnderline(currentChar);
+        }
+
         public static bool IsDigit(char caracter)
         {
             return RegexLibrary.IsDigit(caracter);
@@ -24,20 +29,17 @@ namespace Compiler
             return EnumUtils<Gramatica>.List().Exists(x => EnumUtils<Gramatica>.GetDescription(x) == firstCharacter.ToString());
         }
 
-        public static bool IsToken(char firstCharacter, char? nextCharacter, bool testComposition)
+        public static bool IsToken(char firstCharacter, char? nextCharacter)
         {
-            bool isSingleToken = IsToken(firstCharacter);
-  
-            if (testComposition)
+            if (nextCharacter == null)
+                return false;
+            else
             {
-                string composition = firstCharacter.ToString() + ((char)nextCharacter).ToString();
+                string composition = Concat(firstCharacter, nextCharacter);
                 return EnumUtils<Gramatica>.List().
-                    Exists(x => EnumUtils<Gramatica>.GetDescription(x) == composition && 
+                    Exists(x => EnumUtils<Gramatica>.GetDescription(x) == composition &&
                     EnumUtils<Gramatica>.GetCategory(x) != "PalavraReservada");
             }
-            else
-                return isSingleToken;
-            
         }
 
         public static bool IsPalavraReservada(string palavraReservada)
@@ -54,11 +56,10 @@ namespace Compiler
         public static bool IsIdentifier(string identifier)
         {
             string pattern = EnumUtils<Gramatica>.GetDescription(Gramatica.Identificador);
-
             return Regex.IsMatch(identifier, pattern);
         }
 
-        public static bool IsNumericSymbol(char caracter)
+        public static bool IsNumber(char caracter)
         {
             return RegexLibrary.IsNumericSymbol(caracter);
         }
@@ -68,9 +69,12 @@ namespace Compiler
             return RegexLibrary.IsLetter(caracter);
         }
 
-        public static bool IsComentarioDeLinha(char first, char second)
+        public static bool IsComentarioDeLinha(char first, char? second)
         {
-            return first == '/' && second == '/';
+            if (second == null)
+                return false;
+            else
+                return first == '/' && second == '/';
         }
 
         public static bool IsLiteralCharDefinition(char caracter)
@@ -78,27 +82,20 @@ namespace Compiler
             return caracter == '\'';
         }
 
-        public static bool IsInicioComentarioDeBloco(char first, char second)
+        public static bool IsInicioComentarioDeBloco(char first, char? second)
         {
-            return first == '/' && second == '*';
+            if (second == null)
+                return false;
+            else
+                return first == '/' && second == '*';
         }
 
         public static bool IsFimComentarioDeBloco(char first, char? second)
         {
             if (second == null)
-                throw new Exception("Fim de comentário esperado não foi encontrado");
+                return false;
             else
                 return first == '*' && ((char)second) == '/';
-        }
-
-        public static List<Gramatica> GetNumericTypes()
-        {
-            return EnumUtils<Gramatica>.GetFromCategory("NumericRules");
-        }
-
-        public static Gramatica GetCharacterType()
-        {
-            return EnumUtils<Gramatica>.GetFromCategory("CharRules").First();
         }
 
 
@@ -106,6 +103,16 @@ namespace Compiler
         {
             return (first.ToString() + last.ToString());
         }
+
+        public static string Concat(char first, char? last)
+        {
+            if (last == null)
+                return first.ToString();
+            else
+                return (first.ToString() + ((char)last).ToString());
+        }
+
+
 
         public static Gramatica GetToken(string token)
         {
@@ -124,16 +131,10 @@ namespace Compiler
                 Find(x => EnumUtils<Gramatica>.GetDescription(x) == value);
         }
 
-        public static bool isDelimitador(char delimit)
+        public static bool IsDelimitador(char delimit)
         {
-            List<char> delimitadores = new List<char>();
-            delimitadores.Add(' ');
-            delimitadores.Add('\t');
-            delimitadores.Add('\n');
-            delimitadores.Add('\r');
-            bool retorno = delimitadores.Exists(x => x == delimit);
-            return retorno;
-
+            char[] Delimitadores = { ' ', '\t', '\n', '\r' };
+            return Delimitadores.Contains(delimit);
         }
 
 
