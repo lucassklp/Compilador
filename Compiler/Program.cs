@@ -12,33 +12,25 @@ namespace Compiler
         static void Main(string[] args)
         {
 			
-            string file = @"C:\arquivo_exemplo.txt";
+            string file = args[0];
 
             string content;
-            using (StreamReader sr = new StreamReader(file))
+            try
             {
+                //Lê o arquivo
+                StreamReader sr = new StreamReader(file);
                 content = sr.ReadToEnd();
+                
+                Scanner scanner = new Scanner(content);
+                scanner.PrintTokens();
+                Parser parser = new Parser(scanner);
             }
-
-            Scanner scanner = new Scanner(content);
-            Parser parser = new Parser(scanner);
-
-
-
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
             Console.ReadKey();
-        }
-
-        private static string doTabs(int length)
-        {
-            string response = string.Empty;
-            int result = length / 8;
-            for (int i = result; i < 4; i++)
-            {
-                response += "\t";
-            }
-
-            return response;
         }
     }
 }

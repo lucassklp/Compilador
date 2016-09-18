@@ -41,7 +41,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\ExceptionHelper.cs" />
     <Compile Include="Exceptions\Parser\ExpectedTokenException.cs" />
+    <Compile Include="Exceptions\Scanner\EndOfFileBlockCommentException.cs" />
+    <Compile Include="Exceptions\Scanner\ExpectedEndOfCharacterException.cs" />
+    <Compile Include="Exceptions\Scanner\InvalidCharSequenceException.cs" />
+    <Compile Include="Exceptions\Scanner\InvalidNumericFormatException.cs" />
+    <Compile Include="Exceptions\Scanner\TokenNotIdentifiedException.cs" />
     <Compile Include="Gramatica.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />
@@ -56,7 +62,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Exceptions\Scanner\" />
     <Folder Include="Files\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

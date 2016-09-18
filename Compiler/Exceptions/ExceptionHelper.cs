@@ -41,5 +41,28 @@ namespace Compiler.Exceptions
         }
 
 
+
+        public static string GenerateExpectedTokenExceptionMessage(Token TokenLido, Gramatica[] TokensEsperados)
+        {
+
+            var exceptionMessage = new StringBuilder();
+            for (int i = 0; i < TokensEsperados.Length; i++)
+            {
+                //É o último
+                if(i == TokensEsperados.Length - 1)
+                {
+                    exceptionMessage.Append(string.Format("Token '{0}' esperado não foi encontrado.\n", TokensEsperados[i].ToString()));
+                }
+                else
+                {
+                    exceptionMessage.Append(string.Format("Token '{0}' ou ", TokensEsperados[i].ToString()));
+                }
+            }
+            exceptionMessage.Append(string.Format(@"Linha: {0}, Coluna: {1}, Ultimo token lido: '{2}', Lexema do último token lido: '{3}'",
+                                        TokenLido.Linha, TokenLido.Coluna, TokenLido.Gramatica.ToString(), TokenLido.Lexema));
+
+            return exceptionMessage.ToString();
+        }
+
     }
 }

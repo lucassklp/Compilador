@@ -28,16 +28,7 @@ namespace Compiler
         public Parser(Scanner scanner)
         {
             this.scanner = scanner;
-            try
-            {
-                Programa();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
-
+            Programa();
         }
 
         public void GetNextToken()
@@ -318,15 +309,39 @@ namespace Compiler
         private void ExpressaoAritmetica()
         {
             //<expr_arit> ::= <expr_arit> "+" <termo>   | <expr_arit> "-" <termo> | <termo>
-            throw new NotImplementedException();
+            this.Termo();
+            this.ExpressaoAritmetica(true);
         }
 
-        //To-do
+        private void ExpressaoAritmetica(bool trick)
+        {
+            if(GetLookAhead.Gramatica == Gramatica.Soma || 
+               GetLookAhead.Gramatica == Gramatica.Subtração)
+            {
+                this.GetNextToken();
+                this.Termo();
+                this.ExpressaoAritmetica(true);
+            }
+        }
+
         private void Termo()
         {
             //< termo > ::= < termo > "*" < fator > | < termo > “/” < fator > | < fator >
-            throw new NotImplementedException();
+            this.Fator();
+            this.Termo(true);
         }
+
+        private void Termo(bool trick)
+        {
+            if(GetLookAhead.Gramatica == Gramatica.Multiplicação ||
+               GetLookAhead.Gramatica == Gramatica.Divisão)
+            {
+                this.GetNextToken();
+                this.Fator();
+                this.Termo(trick);
+            }
+        }
+
 
         private void Fator()
         {
@@ -341,9 +356,9 @@ namespace Compiler
                 }
             }
             else if (GetLookAhead.Gramatica == Gramatica.Identificador ||
-                     GetLookAhead.Gramatica == Gramatica.Float ||
-                     GetLookAhead.Gramatica == Gramatica.Int ||
-                     GetLookAhead.Gramatica == Gramatica.Char)
+                     GetLookAhead.Gramatica == Gramatica.FloatValue ||
+                     GetLookAhead.Gramatica == Gramatica.IntValue ||
+                     GetLookAhead.Gramatica == Gramatica.CharValue)
             {
                 this.GetNextToken();
                 return;
