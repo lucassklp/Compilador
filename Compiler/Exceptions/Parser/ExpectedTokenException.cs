@@ -8,7 +8,7 @@ namespace Compiler.Exceptions.Parser
 {
     class ExpectedTokenException : Exception
     {
-        public ExpectedTokenException(string NomeFuncao, Token TokenLido, params Gramatica[] TokensEsperados)
+        public ExpectedTokenException(string NomeFuncao, LexicalToken TokenLido, params Token[] TokensEsperados)
            : base(ExceptionHelper.GenerateExpectedTokenExceptionMessage(TokenLido, TokensEsperados, NomeFuncao))
         {
 

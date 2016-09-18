@@ -26,7 +26,7 @@ namespace Compiler
 
         public static bool IsToken(char firstCharacter)
         {
-            return EnumUtils<Gramatica>.List().Exists(x => EnumUtils<Gramatica>.GetDescription(x) == firstCharacter.ToString());
+            return EnumUtils<Token>.List().Exists(x => EnumUtils<Token>.GetDescription(x) == firstCharacter.ToString());
         }
 
         public static bool IsToken(char firstCharacter, char? nextCharacter)
@@ -36,16 +36,16 @@ namespace Compiler
             else
             {
                 string composition = Concat(firstCharacter, nextCharacter);
-                return EnumUtils<Gramatica>.List().
-                    Exists(x => EnumUtils<Gramatica>.GetDescription(x) == composition &&
-                    EnumUtils<Gramatica>.GetCategory(x) != "PalavraReservada");
+                return EnumUtils<Token>.List().
+                    Exists(x => EnumUtils<Token>.GetDescription(x) == composition &&
+                    EnumUtils<Token>.GetCategory(x) != "PalavraReservada");
             }
         }
 
         public static bool IsPalavraReservada(string palavraReservada)
         {
-            return EnumUtils<Gramatica>.GetFromCategory("PalavraReservada").
-                Exists(x => EnumUtils<Gramatica>.GetDescription(x) == palavraReservada);
+            return EnumUtils<Token>.GetFromCategory("PalavraReservada").
+                Exists(x => EnumUtils<Token>.GetDescription(x) == palavraReservada);
         }
 
         public static bool IsDigitOrPunto(char currentCharacter)
@@ -55,7 +55,7 @@ namespace Compiler
 
         public static bool IsIdentifier(string identifier)
         {
-            string pattern = EnumUtils<Gramatica>.GetDescription(Gramatica.Identificador);
+            string pattern = EnumUtils<Token>.GetDescription(Token.Identificador);
             return Regex.IsMatch(identifier, pattern);
         }
 
@@ -114,21 +114,21 @@ namespace Compiler
 
 
 
-        public static Gramatica GetToken(string token)
+        public static Token GetToken(string token)
         {
-            return EnumUtils<Gramatica>.List().
-                    Find(x => x == EnumUtils<Gramatica>.GetFromDescription(token));
+            return EnumUtils<Token>.List().
+                    Find(x => x == EnumUtils<Token>.GetFromDescription(token));
         }
-        public static Gramatica GetToken(char token)
+        public static Token GetToken(char token)
         {
-            return EnumUtils<Gramatica>.List().
-                    Find(x => x == EnumUtils<Gramatica>.GetFromDescription(token.ToString()));    
+            return EnumUtils<Token>.List().
+                    Find(x => x == EnumUtils<Token>.GetFromDescription(token.ToString()));    
         }
 
-        public static Gramatica GetPalavraReservada(string value)
+        public static Token GetPalavraReservada(string value)
         {
-            return EnumUtils<Gramatica>.GetFromCategory("PalavraReservada").
-                Find(x => EnumUtils<Gramatica>.GetDescription(x) == value);
+            return EnumUtils<Token>.GetFromCategory("PalavraReservada").
+                Find(x => EnumUtils<Token>.GetDescription(x) == value);
         }
 
         public static bool IsDelimitador(char delimit)

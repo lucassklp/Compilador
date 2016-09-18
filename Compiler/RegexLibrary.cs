@@ -46,10 +46,10 @@ namespace Compiler
 
         public static bool IsNumericType(string lexema)
         {
-            var numericTypes = EnumUtils<Gramatica>.GetFromCategory("NumericRules");
+            var numericTypes = EnumUtils<Token>.GetFromCategory("NumericRules");
             foreach (var item in numericTypes)
             {
-                string pattern = EnumUtils<Gramatica>.GetDescription(item);
+                string pattern = EnumUtils<Token>.GetDescription(item);
                 Regex numeric = new Regex(pattern);
                 bool match = numeric.IsMatch(lexema);
                 if (match)
@@ -62,26 +62,26 @@ namespace Compiler
 
 
 
-        public static Gramatica GetNumericType(string lexema)
+        public static Token GetNumericType(string lexema)
         {
-            var numericTypes = EnumUtils<Gramatica>.GetFromCategory("NumericRules");
+            var numericTypes = EnumUtils<Token>.GetFromCategory("NumericRules");
             foreach (var item in numericTypes)
             {
-                string pattern = EnumUtils<Gramatica>.GetDescription(item);
+                string pattern = EnumUtils<Token>.GetDescription(item);
                 Regex numeric = new Regex(pattern);
                 bool match = numeric.IsMatch(lexema);
                 if (match)
                     return item;
             }
              
-            return default(Gramatica);
+            return default(Token);
         }
 
         public static bool IsValidCharacter(string lexema)
         {
-            var rule = EnumUtils<Gramatica>.GetFromCategory("CharRules").First();
+            var rule = EnumUtils<Token>.GetFromCategory("CharRules").First();
 
-            string pattern = EnumUtils<Gramatica>.GetDescription(rule);
+            string pattern = EnumUtils<Token>.GetDescription(rule);
             Regex character = new Regex(pattern);
             bool match = character.IsMatch(lexema);
             if (match)

@@ -10,21 +10,17 @@ namespace Compiler
     class Parser
     {
         private Scanner scanner;
-        private Token NextToken
+        private LexicalToken NextToken
         {
             get
             {
-
-                Token p = this.scanner.NextToken();
-                Console.WriteLine("Next Token: {0} : {1}", p.Lexema, p.Gramatica.ToString());
-                return p;
+                return this.scanner.NextToken();
             }
         }
-        private Token GetLookAhead
+        private LexicalToken GetLookAhead
         {
             get
             {
-                Console.WriteLine("Viu: "+this.scanner.LookAtNextToken().Lexema + " : " + this.scanner.LookAtNextToken().Gramatica.ToString());
                 return this.scanner.LookAtNextToken();
             }
         }
@@ -44,47 +40,47 @@ namespace Compiler
         #region First's
         private bool IsFirstDeclaracaoVariavel()
         {
-            return (GetLookAhead.Gramatica == Gramatica.Int ||
-                    GetLookAhead.Gramatica == Gramatica.Float ||
-                    GetLookAhead.Gramatica == Gramatica.Char);
+            return (GetLookAhead.Token == Token.Int ||
+                    GetLookAhead.Token == Token.Float ||
+                    GetLookAhead.Token == Token.Char);
         }
 
         private bool IsFirstComando()
         {
 
-            return (GetLookAhead.Gramatica == Gramatica.Do ||
-                   GetLookAhead.Gramatica == Gramatica.While ||
-                   GetLookAhead.Gramatica == Gramatica.Identificador ||
-                   GetLookAhead.Gramatica == Gramatica.If ||
-                   GetLookAhead.Gramatica == Gramatica.AbreChave);
+            return (GetLookAhead.Token == Token.Do ||
+                   GetLookAhead.Token == Token.While ||
+                   GetLookAhead.Token == Token.Identificador ||
+                   GetLookAhead.Token == Token.If ||
+                   GetLookAhead.Token == Token.AbreChave);
 
         }
 
         private bool IsFirstComandoBasico()
         {
-            return (GetLookAhead.Gramatica == Gramatica.Identificador ||
-                    GetLookAhead.Gramatica == Gramatica.AbreChave);
+            return (GetLookAhead.Token == Token.Identificador ||
+                    GetLookAhead.Token == Token.AbreChave);
         }
 
         private bool IsFirstIteracao()
         {
-            return (GetLookAhead.Gramatica == Gramatica.While ||
-                    GetLookAhead.Gramatica == Gramatica.Do);
+            return (GetLookAhead.Token == Token.While ||
+                    GetLookAhead.Token == Token.Do);
         }
 
         private bool HasInlineDeclaracoes()
         {
-            return GetLookAhead.Gramatica == Gramatica.Vírgula;
+            return GetLookAhead.Token == Token.Vírgula;
         }
 
         private bool IsFirstAtribuicao()
         {
-            return GetLookAhead.Gramatica == Gramatica.Identificador;
+            return GetLookAhead.Token == Token.Identificador;
         }
 
         private bool IsFirstBloco()
         {
-            return GetLookAhead.Gramatica == Gramatica.AbreChave;
+            return GetLookAhead.Token == Token.AbreChave;
         }
 
         #endregion
@@ -95,66 +91,72 @@ namespace Compiler
         {
             const string nomeFuncao = "DeclaracaoVariavel";
             this.Tipo();
-            if (NextToken.Gramatica == Gramatica.Identificador)
+            if (NextToken.Token == Token.Identificador)
             {
                 while (HasInlineDeclaracoes())
                 {
-                    if (NextToken.Gramatica == Gramatica.Vírgula)
+                    if (NextToken.Token == Token.Vírgula)
                     {
-                        if (NextToken.Gramatica == Gramatica.Identificador)
+                        if (NextToken.Token == Token.Identificador)
                             continue;
                         else
-                            throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.Identificador);
+                            throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Identificador);
                     }
                     else
-                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.Vírgula);
+                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Vírgula);
 
                 }
-                if (NextToken.Gramatica == Gramatica.PontoVírgula)
+                if (NextToken.Token == Token.PontoVírgula)
                     return;
                 else
-                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.PontoVírgula);
+                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.PontoVírgula);
             }
             else
-                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.Identificador);
+                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Identificador);
         }
 
         private void Tipo()
         {
             const string nomeFuncao = "Tipo";
-            if (GetLookAhead.Gramatica == Gramatica.Int ||
-                GetLookAhead.Gramatica == Gramatica.Float ||
-                GetLookAhead.Gramatica == Gramatica.Char)
+            if (GetLookAhead.Token == Token.Int ||
+                GetLookAhead.Token == Token.Float ||
+                GetLookAhead.Token == Token.Char)
                 this.GetNextToken();
             else
-                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.Int, Gramatica.Float, Gramatica.Char);
+                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Int, Token.Float, Token.Char);
         }
 
         private void Programa()
         {
             const string nomeFuncao = "Programa";
             //<programa> ::= int main"("")" <bloco>
-            if (NextToken.Gramatica == Gramatica.Int)
+            if (NextToken.Token == Token.Int)
             {
-                if(NextToken.Gramatica == Gramatica.Main)
+                if(NextToken.Token == Token.Main)
                 {
-                    if(NextToken.Gramatica == Gramatica.AbreParenteses)
+                    if(NextToken.Token == Token.AbreParenteses)
                     {
-                        if(NextToken.Gramatica == Gramatica.FechaParenteses)
+                        if(NextToken.Token == Token.FechaParenteses)
                         {
                             this.Bloco();
+                            if (NextToken.Token == Token.EndOfFile)
+                            {
+                                return;
+                            }
+                            else
+                                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.EndOfFile);
                         }
                         else
-                            throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.FechaParenteses);
+                            throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.FechaParenteses);
                     }
                     else
-                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.AbreParenteses);
+                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.AbreParenteses);
                 }
                 else
-                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.Main);
+                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Main);
             }
             else
-                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.Int);
+                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Int);
 
         }
 
@@ -162,7 +164,7 @@ namespace Compiler
         {
             const string nomeFuncao = "Bloco";
             //<bloco> ::= “{“ {<decl_var>}* {<comando>}* “}”
-            if (NextToken.Gramatica == Gramatica.AbreChave)
+            if (NextToken.Token == Token.AbreChave)
             {
                 while (this.IsFirstDeclaracaoVariavel())
                     this.DeclaracaoVariavel();
@@ -170,13 +172,13 @@ namespace Compiler
                 while(this.IsFirstComando())
                     this.Comando();
 
-                if (NextToken.Gramatica == Gramatica.FechaChave)
+                if (NextToken.Token == Token.FechaChave)
                     return;
                 else
-                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.FechaChave);
+                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.FechaChave);
             }
             else
-                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.AbreChave);
+                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.AbreChave);
         }
 
         private void Comando()
@@ -188,28 +190,28 @@ namespace Compiler
                 this.ComandoBasico();
             else if (IsFirstIteracao())
                 this.Iteracao();
-            else if (NextToken.Gramatica == Gramatica.If)
+            else if (NextToken.Token == Token.If)
             {
-                if (NextToken.Gramatica == Gramatica.AbreParenteses)
+                if (NextToken.Token == Token.AbreParenteses)
                 {
                     this.ExpressaoRelacional();
-                    if (NextToken.Gramatica == Gramatica.FechaParenteses)
+                    if (NextToken.Token == Token.FechaParenteses)
                     {
                         this.Comando();
-                        if (GetLookAhead.Gramatica == Gramatica.Else)
+                        if (GetLookAhead.Token == Token.Else)
                         {
                             this.GetNextToken();
                             this.Comando();
                         }
                     }
                     else
-                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.FechaParenteses);
+                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.FechaParenteses);
                 }
                 else
-                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.AbreParenteses);
+                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.AbreParenteses);
             }
             else
-                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.If, Gramatica.Identificador, Gramatica.AbreChave, Gramatica.While, Gramatica.Do);
+                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.If, Token.Identificador, Token.AbreChave, Token.While, Token.Do);
 
         }
 
@@ -223,7 +225,7 @@ namespace Compiler
             else if (IsFirstBloco())
                 this.Bloco();
             else
-                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.Identificador, Gramatica.AbreChave);
+                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Identificador, Token.AbreChave);
 
         }
 
@@ -232,59 +234,53 @@ namespace Compiler
             const string nomeFuncao = "Iteracao";
             //< iteração > ::= while "(" < expr_relacional > ")" < comando > | do < comando > while "(" < expr_relacional > ")"";"
 
-            Gramatica token = NextToken.Gramatica;
+            Token token = NextToken.Token;
 
-            if (token == Gramatica.Do)
+            if (token == Token.Do)
             {
                 this.Comando();
-                if (NextToken.Gramatica == Gramatica.While)
+                if (NextToken.Token == Token.While)
                 {
-                    if (NextToken.Gramatica == Gramatica.AbreParenteses)
+                    if (NextToken.Token == Token.AbreParenteses)
                     {
                         this.ExpressaoRelacional();
-                        if (NextToken.Gramatica == Gramatica.FechaParenteses)
+                        if (NextToken.Token == Token.FechaParenteses)
                         {
-                            if (NextToken.Gramatica == Gramatica.PontoVírgula)
+                            if (NextToken.Token == Token.PontoVírgula)
                             {
                                 return;
                             }
                             else
-                                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.PontoVírgula);
+                                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.PontoVírgula);
                         }
                         else
-                            throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.FechaParenteses);
+                            throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.FechaParenteses);
                     }
                     else
-                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.AbreParenteses);
+                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.AbreParenteses);
                 }
                 else
-                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.While);
+                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.While);
 
             }
-            else if (token == Gramatica.While)
+            else if (token == Token.While)
             {
-                if (NextToken.Gramatica == Gramatica.AbreParenteses)
+                if (NextToken.Token == Token.AbreParenteses)
                 {
                     this.ExpressaoRelacional();
 
-                    if (NextToken.Gramatica == Gramatica.FechaParenteses)
+                    if (NextToken.Token == Token.FechaParenteses)
                     {
                         this.Comando();
-                        //if (NextToken.Gramatica == Gramatica.PontoVírgula)
-                        //{
-                        //    return;
-                        //}
-                        //else
-                        //    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.PontoVírgula);
                     }
                     else
-                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.FechaParenteses);
+                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.FechaParenteses);
                 }
                 else
-                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.AbreParenteses);
+                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.AbreParenteses);
             }
             else
-                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.Do, Gramatica.While);
+                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Do, Token.While);
 
         }
 
@@ -292,21 +288,21 @@ namespace Compiler
         {
             const string nomeFuncao = "Atribuicao";
             //<atribuição> ::= < id > "=" < expr_arit > ";"
-            if (NextToken.Gramatica == Gramatica.Identificador)
+            if (NextToken.Token == Token.Identificador)
             {
-                if (NextToken.Gramatica == Gramatica.Atribuição)
+                if (NextToken.Token == Token.Atribuição)
                 {
                     this.ExpressaoAritmetica();
-                    if (NextToken.Gramatica == Gramatica.PontoVírgula)
+                    if (NextToken.Token == Token.PontoVírgula)
                         return;
                     else
-                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.PontoVírgula);
+                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.PontoVírgula);
                 }
                 else
-                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.Identificador);
+                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Identificador);
             }
             else
-                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.Identificador);
+                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Identificador);
         }
 
         private void ExpressaoRelacional()
@@ -327,8 +323,8 @@ namespace Compiler
 
         private void ExpressaoAritmetica(bool trick)
         {
-            if(GetLookAhead.Gramatica == Gramatica.Soma || 
-               GetLookAhead.Gramatica == Gramatica.Subtração)
+            if(GetLookAhead.Token == Token.Soma || 
+               GetLookAhead.Token == Token.Subtração)
             {
                 this.GetNextToken();
                 this.Termo();
@@ -345,8 +341,8 @@ namespace Compiler
 
         private void Termo(bool trick)
         {
-            if(GetLookAhead.Gramatica == Gramatica.Multiplicação ||
-               GetLookAhead.Gramatica == Gramatica.Divisão)
+            if(GetLookAhead.Token == Token.Multiplicação ||
+               GetLookAhead.Token == Token.Divisão)
             {
                 this.GetNextToken();
                 this.Fator();
@@ -359,35 +355,35 @@ namespace Compiler
         {
             const string nomeFuncao = "Fator";
             //< fator > ::= “(“ < expr_arit > “)” | < id > | < real > | < inteiro > | < char >
-            if (GetLookAhead.Gramatica == Gramatica.AbreParenteses)
+            if (GetLookAhead.Token == Token.AbreParenteses)
             {
                 this.GetNextToken();
                 this.ExpressaoAritmetica();
-                if(NextToken.Gramatica == Gramatica.FechaParenteses)
+                if(NextToken.Token == Token.FechaParenteses)
                 {
                     return;
                 }
             }
-            else if (GetLookAhead.Gramatica == Gramatica.Identificador ||
-                     GetLookAhead.Gramatica == Gramatica.FloatValue ||
-                     GetLookAhead.Gramatica == Gramatica.IntValue ||
-                     GetLookAhead.Gramatica == Gramatica.CharValue)
+            else if (GetLookAhead.Token == Token.Identificador ||
+                     GetLookAhead.Token == Token.FloatValue ||
+                     GetLookAhead.Token == Token.IntValue ||
+                     GetLookAhead.Token == Token.CharValue)
             {
                 this.GetNextToken();
                 return;
             }
             else
-                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.AbreParenteses, 
-                            Gramatica.Identificador, Gramatica.Float, Gramatica.Int, Gramatica.Char);
+                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.AbreParenteses, 
+                            Token.Identificador, Token.Float, Token.Int, Token.Char);
         }
 
         private void OperadorRelacional()
         {
             const string nomeFuncao = "OperadorRelacional";
-            if (EnumUtils<Gramatica>.GetFromCategory("Comparador").Exists(x => x == GetLookAhead.Gramatica))
+            if (EnumUtils<Token>.GetFromCategory("Comparador").Exists(x => x == GetLookAhead.Token))
                 this.GetNextToken();
             else
-                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, EnumUtils<Gramatica>.GetFromCategory("Comparador").ToArray());
+                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, EnumUtils<Token>.GetFromCategory("Comparador").ToArray());
         }
 
         #endregion

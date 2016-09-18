@@ -22,12 +22,12 @@ namespace Compiler
         private char? NextCharacter;
 
 
-        private Queue<Token> tokenTable;
+        private Queue<LexicalToken> tokenTable;
 
 
         public Scanner(string code)
         {
-            this.tokenTable = new Queue<Token>();
+            this.tokenTable = new Queue<LexicalToken>();
             this.code = code;
             this.BuildTokenTable();
         }
@@ -36,18 +36,18 @@ namespace Compiler
         {
             foreach (var item in this.tokenTable)
             {
-                Console.WriteLine(item.Lexema +"  =>  " + item.Gramatica);
+                Console.WriteLine(item.Lexema +"  =>  " + item.Token);
             }
         }
 
-        public Token NextToken()
+        public LexicalToken NextToken()
         {
             if (this.tokenTable.Count > 0)
                 return tokenTable.Dequeue();
             else return null;
         }
 
-        public Token LookAtNextToken()
+        public LexicalToken LookAtNextToken()
         {
             if (this.tokenTable.Count > 0)
                 return this.tokenTable.Peek();
@@ -83,8 +83,8 @@ namespace Compiler
                         }
                         if (RegexLibrary.IsNumericType(lexema))
                         {
-                            Gramatica grammar = RegexLibrary.GetNumericType(lexema);
-                            this.tokenTable.Enqueue(new Token(linha, coluna, grammar, lexema));
+                            Token grammar = RegexLibrary.GetNumericType(lexema);
+                            this.tokenTable.Enqueue(new LexicalToken(linha, coluna, grammar, lexema));
                         }
                         else
                             throw new InvalidNumericFormatException(lexema, this.CurrentCharacter, linha, coluna);
@@ -104,7 +104,7 @@ namespace Compiler
 
                         if (RegexLibrary.IsValidCharacter(lexema))
                         {
-                            this.tokenTable.Enqueue(new Token(linha, coluna, Gramatica.CharValue, lexema));
+                            this.tokenTable.Enqueue(new LexicalToken(linha, coluna, Token.CharValue, lexema));
                             this.MoveToNextCharacter();
                         }
                         else
@@ -132,16 +132,16 @@ namespace Compiler
                     }
                     else if (Utils.IsToken(this.CurrentCharacter, this.NextCharacter))
                     {
-                        Gramatica token = Utils.GetToken(Utils.Concat(this.CurrentCharacter, this.NextCharacter));
-                        tokenTable.Enqueue(new Token(this.linha, this.coluna, token, Utils.Concat(this.CurrentCharacter, (char)this.NextCharacter)));
+                        Token token = Utils.GetToken(Utils.Concat(this.CurrentCharacter, this.NextCharacter));
+                        tokenTable.Enqueue(new LexicalToken(this.linha, this.coluna, token, Utils.Concat(this.CurrentCharacter, (char)this.NextCharacter)));
                         this.MoveToNextCharacter();
                         this.MoveToNextCharacter();
                     }
 
                     else if (Utils.IsToken(this.CurrentCharacter))
                     {
-                        Gramatica token = Utils.GetToken(this.CurrentCharacter);
-                        tokenTable.Enqueue(new Token(this.linha, this.coluna, token, this.CurrentCharacter.ToString()));
+                        Token token = Utils.GetToken(this.CurrentCharacter);
+                        tokenTable.Enqueue(new LexicalToken(this.linha, this.coluna, token, this.CurrentCharacter.ToString()));
                         this.MoveToNextCharacter();
                     }
                     else if (Utils.IsLetterOrUnderline(this.CurrentCharacter))
@@ -156,11 +156,11 @@ namespace Compiler
 
                         if (Utils.IsPalavraReservada(lexema))
                         {
-                            Gramatica palavraReservada = Utils.GetPalavraReservada(lexema);
-                            this.tokenTable.Enqueue(new Token(linha, coluna, palavraReservada, lexema));
+                            Token palavraReservada = Utils.GetPalavraReservada(lexema);
+                            this.tokenTable.Enqueue(new LexicalToken(linha, coluna, palavraReservada, lexema));
                         }
                         else if (Utils.IsIdentifier(lexema))
-                            this.tokenTable.Enqueue(new Token(linha, coluna, Gramatica.Identificador, lexema));
+                            this.tokenTable.Enqueue(new LexicalToken(linha, coluna, Token.Identificador, lexema));
                     }
                     else
                     {
@@ -172,7 +172,7 @@ namespace Compiler
                     this.MoveToNextCharacter();
                 }
             }
-            tokenTable.Enqueue(new Token(linha, coluna, Gramatica.EndOfFile, "EOF"));
+            tokenTable.Enqueue(new LexicalToken(linha, coluna, Token.EndOfFile, "EOF"));
         }
 
 

@@ -24,6 +24,8 @@ namespace Compiler
                 Scanner scanner = new Scanner(content);
                 //scanner.PrintTokens();
                 Parser parser = new Parser(scanner);
+
+                Console.WriteLine("Compilado com sucesso!");
             }
             catch(Exception ex)
             {
