@@ -10,3 +10,4 @@ D:\Lucas\Projetos\GitHub\Compilador\Compiler\bin\Debug\Compiler.exe
 D:\Lucas\Projetos\GitHub\Compilador\Compiler\bin\Debug\Compiler.pdb
 D:\Lucas\Projetos\GitHub\Compilador\Compiler\obj\Debug\Compiler.exe
 D:\Lucas\Projetos\GitHub\Compilador\Compiler\obj\Debug\Compiler.pdb
+D:\Lucas\Projetos\GitHub\Compilador\Compiler\obj\Debug\Compiler.csprojResolveAssemblyReference.cache

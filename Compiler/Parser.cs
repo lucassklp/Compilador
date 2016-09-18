@@ -270,12 +270,12 @@ namespace Compiler
                     if (NextToken.Gramatica == Gramatica.FechaParenteses)
                     {
                         this.Comando();
-                        if (NextToken.Gramatica == Gramatica.PontoVírgula)
-                        {
-                            return;
-                        }
-                        else
-                            throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.PontoVírgula);
+                        //if (NextToken.Gramatica == Gramatica.PontoVírgula)
+                        //{
+                        //    return;
+                        //}
+                        //else
+                        //    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.PontoVírgula);
                     }
                     else
                         throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Gramatica.FechaParenteses);
