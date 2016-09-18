@@ -22,12 +22,13 @@ namespace Compiler
                 content = sr.ReadToEnd();
                 
                 Scanner scanner = new Scanner(content);
-                scanner.PrintTokens();
+                //scanner.PrintTokens();
                 Parser parser = new Parser(scanner);
             }
             catch(Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
             }
 
             Console.ReadKey();

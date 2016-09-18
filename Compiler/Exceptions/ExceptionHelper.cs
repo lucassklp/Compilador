@@ -42,10 +42,11 @@ namespace Compiler.Exceptions
 
 
 
-        public static string GenerateExpectedTokenExceptionMessage(Token TokenLido, Gramatica[] TokensEsperados)
+        public static string GenerateExpectedTokenExceptionMessage(Token TokenLido, Gramatica[] TokensEsperados, string NomeFuncao)
         {
 
             var exceptionMessage = new StringBuilder();
+            exceptionMessage.Append("\n\n");
             for (int i = 0; i < TokensEsperados.Length; i++)
             {
                 //É o último
@@ -60,7 +61,7 @@ namespace Compiler.Exceptions
             }
             exceptionMessage.Append(string.Format(@"Linha: {0}, Coluna: {1}, Ultimo token lido: '{2}', Lexema do último token lido: '{3}'",
                                         TokenLido.Linha, TokenLido.Coluna, TokenLido.Gramatica.ToString(), TokenLido.Lexema));
-
+            exceptionMessage.Append(string.Format("\nErro na função: {0}", NomeFuncao));
             return exceptionMessage.ToString();
         }
 
