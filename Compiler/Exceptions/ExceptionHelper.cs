@@ -46,7 +46,6 @@ namespace Compiler.Exceptions
         {
 
             var exceptionMessage = new StringBuilder();
-            exceptionMessage.Append("\n\n");
             for (int i = 0; i < TokensEsperados.Length; i++)
             {
                 //É o último

@@ -14,7 +14,10 @@ namespace Compiler
         {
             get
             {
-                return this.scanner.NextToken();
+                if (GetLookAhead.Token == Token.EndOfFile)
+                    return GetLookAhead;
+                else
+                    return this.scanner.NextToken();
             }
         }
         private LexicalToken GetLookAhead
@@ -25,10 +28,14 @@ namespace Compiler
             }
         }
 
+        internal void Analizar()
+        {
+            this.Programa();
+        }
+
         public Parser(Scanner scanner)
         {
             this.scanner = scanner;
-            Programa();
         }
 
         public void GetNextToken()

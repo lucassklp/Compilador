@@ -24,13 +24,14 @@ namespace Compiler
                 Scanner scanner = new Scanner(content);
                 //scanner.PrintTokens();
                 Parser parser = new Parser(scanner);
+                parser.Analizar();
 
                 Console.WriteLine("Compilado com sucesso!");
             }
             catch(Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
+                //Console.WriteLine(ex.StackTrace);
             }
 
             Console.ReadKey();
