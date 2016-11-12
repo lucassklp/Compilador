@@ -1,4 +1,5 @@
 ﻿using Compiler.Exceptions.Parser;
+using Compiler.Exceptions.Semantico;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,9 @@ namespace Compiler
     class Parser
     {
         private Scanner scanner;
+        private List<Symbol> symbolTable;
+        private int scope;
+
         private LexicalToken NextToken
         {
             get
@@ -36,6 +40,8 @@ namespace Compiler
         public Parser(Scanner scanner)
         {
             this.scanner = scanner;
+            this.symbolTable = new List<Symbol>();
+            this.scope = 0;
         }
 
         public void GetNextToken()
@@ -43,6 +49,32 @@ namespace Compiler
             //Force to dequeue
             this.scanner.NextToken();
         }
+
+
+        #region Semantico
+        private void AddToSymbolTable(Token Type, string Identifier, int Scope)
+        {
+            if (this.symbolTable.Exists(x => x.Identifier == Identifier && x.Scope == Scope))
+                throw new VariableAlreadyDeclaredInScopeException(GetLookAhead);
+            else
+                this.symbolTable.Add(new Symbol(Type, Identifier, Scope));
+        }
+
+
+        private List<Symbol> SymbolsCurrentScope
+        {
+            get
+            {
+                return this.symbolTable.FindAll(x => x.Scope == this.scope);
+            }
+        }
+
+        private void RemoveSymbolsCurrentScope()
+        {
+            this.symbolTable.RemoveAll(x => x.Scope == this.scope);
+        }
+
+        #endregion
 
         #region First's
         private bool IsFirstDeclaracaoVariavel()
@@ -97,15 +129,25 @@ namespace Compiler
         private void DeclaracaoVariavel()
         {
             const string nomeFuncao = "DeclaracaoVariavel";
-            this.Tipo();
-            if (NextToken.Token == Token.Identificador)
+            Token type = this.Tipo();
+            if (GetLookAhead.Token == Token.Identificador)
             {
+                this.AddToSymbolTable(type, GetLookAhead.Lexema, this.scope);
+                this.GetNextToken();
+
+
                 while (HasInlineDeclaracoes())
                 {
                     if (NextToken.Token == Token.Vírgula)
                     {
-                        if (NextToken.Token == Token.Identificador)
+                        if (GetLookAhead.Token == Token.Identificador)
+                        {
+                            this.AddToSymbolTable(type, GetLookAhead.Lexema, this.scope);
+                            this.GetNextToken();
                             continue;
+                        }
+
+                            
                         else
                             throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Identificador);
                     }
@@ -122,13 +164,17 @@ namespace Compiler
                 throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Identificador);
         }
 
-        private void Tipo()
+        private Token Tipo()
         {
             const string nomeFuncao = "Tipo";
             if (GetLookAhead.Token == Token.Int ||
                 GetLookAhead.Token == Token.Float ||
                 GetLookAhead.Token == Token.Char)
+            {
+                Token type = GetLookAhead.Token;
                 this.GetNextToken();
+                return type;
+            }
             else
                 throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Int, Token.Float, Token.Char);
         }
@@ -169,6 +215,7 @@ namespace Compiler
 
         private void Bloco()
         {
+            this.scope++;
             const string nomeFuncao = "Bloco";
             //<bloco> ::= “{“ {<decl_var>}* {<comando>}* “}”
             if (NextToken.Token == Token.AbreChave)
@@ -180,12 +227,19 @@ namespace Compiler
                     this.Comando();
 
                 if (NextToken.Token == Token.FechaChave)
+                {
+                    this.RemoveSymbolsCurrentScope();
+                    this.scope--;
                     return;
+                }
+                    
                 else
                     throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.FechaChave);
             }
             else
                 throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.AbreChave);
+
+
         }
 
         private void Comando()

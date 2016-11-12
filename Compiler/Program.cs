@@ -12,7 +12,7 @@ namespace Compiler
         static void Main(string[] args)
         {
 			
-            string file = args[0];
+            string file = @"C:\arquivo_exemplo.c";
 
             string content;
             try

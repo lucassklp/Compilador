@@ -48,6 +48,8 @@
     <Compile Include="Exceptions\Scanner\InvalidCharSequenceException.cs" />
     <Compile Include="Exceptions\Scanner\InvalidNumericFormatException.cs" />
     <Compile Include="Exceptions\Scanner\TokenNotIdentifiedException.cs" />
+    <Compile Include="Exceptions\Semantico\VariableAlreadyDeclaredInScopeException.cs" />
+    <Compile Include="Symbol.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />
