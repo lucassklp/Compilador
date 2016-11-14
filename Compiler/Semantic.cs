@@ -149,6 +149,8 @@ namespace Compiler
                     return Token.Float;
                 else if ((t1 == Token.Int || t1 == Token.IntValue) && (t2 == Token.Int || t2 == Token.IntValue))
                     return Token.Int;
+                else if ((t1 == Token.Char || t1 == Token.CharValue) || (t2 == Token.Char || t2 == Token.CharValue))
+                    return Token.Char;
                 else
                     throw new Exception("Impossível pegar o tipo resultante.");
             }
