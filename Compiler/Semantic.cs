@@ -45,17 +45,18 @@ namespace Compiler
 
         public void RemoveCurrentScope()
         {
-            this.scope--;
             this.RemoveSymbolsCurrentScope();
+            this.scope--;
+            
         }
 
-        public void AddToSymbolTable(Token Type, LexicalToken GetLookAhead)
+        public void AddToSymbolTable(Token Type, LexicalToken LookAhead)
         {
 
-            if (this.symbolTable.Exists(x => x.Identifier == GetLookAhead.Lexema && x.Scope == this.scope))
-                throw new VariableAlreadyDeclaredInScopeException(GetLookAhead);
+            if (this.symbolTable.Exists(x => x.Identifier == LookAhead.Lexema && x.Scope == this.scope))
+                throw new VariableAlreadyDeclaredInScopeException(LookAhead);
             else
-                this.symbolTable.Add(new Symbol(Type, GetLookAhead.Lexema, this.scope));
+                this.symbolTable.Add(new Symbol(Type, LookAhead, this.scope));
         }
 
 
@@ -91,7 +92,7 @@ namespace Compiler
                 if (this.VariableIsDeclared(left.Identifier))
                     leftToken = this.GetVariable(left.Identifier).Type;
                 else
-                    throw new Exception("Variavel nao declarada");//VariableNotDeclaredException(left);
+                    throw new VariableNotDeclaredException(left.LexicalToken);
             }
 
             if (right.Type == Token.Identificador)
@@ -99,7 +100,7 @@ namespace Compiler
                 if (this.VariableIsDeclared(right.Identifier))
                     rightToken = this.GetVariable(right.Identifier).Type;
                 else
-                    throw new Exception("Variavel nao declarada");//VariableNotDeclaredException(left);
+                    throw new VariableNotDeclaredException(right.LexicalToken);
             }
 
 
@@ -122,21 +123,21 @@ namespace Compiler
         public Token GetResultingType(Symbol s1, Token op, Symbol s2)
         {
 
-            Token t1 = s1.Type, t2 = s2.Type;
+            Token t1 = s1.ReturnType, t2 = s2.ReturnType;
             if (t1 == Token.Identificador)
             {
                 if (this.VariableIsDeclared(s1.Identifier))
-                    t1 = this.GetVariable(s1.Identifier).Type;
+                    t1 = this.GetVariable(s1.Identifier).ReturnType;
                 else
-                    throw new Exception("Variavel nao declarada");//VariableNotDeclaredException(left);
+                    throw new VariableNotDeclaredException(s1.LexicalToken);
             }
 
             if (t2 == Token.Identificador)
             {
                 if (this.VariableIsDeclared(s2.Identifier))
-                    t2 = this.GetVariable(s2.Identifier).Type;
+                    t2 = this.GetVariable(s2.Identifier).ReturnType;
                 else
-                    throw new Exception("Variavel nao declarada");//VariableNotDeclaredException(left);
+                    throw new VariableNotDeclaredException(s2.LexicalToken);
             }
 
             if (op == Token.Divisão)
@@ -157,8 +158,30 @@ namespace Compiler
             else
                 throw new Exception("Impossível pegar o tipo resultante.");
         }
-            
 
+        public bool IsCorrectAttribution(Token leftSide, Token rightSide)
+        {
+            if ((leftSide == Token.Char) && (rightSide == Token.Char || rightSide == Token.CharValue))
+            {
+                return true;
+            }
+            else if ((leftSide == Token.Float) &&
+                    ((rightSide == Token.Float || rightSide == Token.FloatValue) ||
+                    (rightSide == Token.Int || rightSide == Token.IntValue)))
+            {
+                return true;
+            }
+            else if ((leftSide == Token.Int) &&
+                (rightSide == Token.IntValue || rightSide == Token.Int))
+            {
+                return true;
+            }
+            else 
+            {
+                return false;
+            }
+                
+        }
 
 
 

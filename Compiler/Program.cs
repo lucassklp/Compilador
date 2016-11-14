@@ -12,7 +12,7 @@ namespace Compiler
         static void Main(string[] args)
         {
 			
-            string file = @"C:\arquivo_exemplo.txt";
+            string file = @"C:\arquivo_exemplo.c";
 
             string content;
             try
@@ -32,6 +32,7 @@ namespace Compiler
             catch(Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
             }
 
             Console.ReadKey();

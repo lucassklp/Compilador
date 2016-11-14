@@ -316,36 +316,46 @@ namespace Compiler
 
         private void Atribuicao()
         {
-            LexicalToken variable;
+            Symbol variable;
 
             const string nomeFuncao = "Atribuicao";
             //<atribuição> ::= < id > "=" < expr_arit > ";"
             if (GetLookAhead.Token == Token.Identificador)
             {
-                variable = NextToken;
-                Token Type = this.semantic.GetVariable(variable.Lexema).Type;
-                if (NextToken.Token == Token.Atribuição)
+                var temp = NextToken;
+
+                if (this.semantic.VariableIsDeclared(temp.Lexema))
                 {
-                    if (!this.semantic.VariableIsDeclared(variable.Lexema))
-                        throw new VariableNotDeclaredException(variable);
-                    else
+                    variable = new Symbol(this.semantic.GetVariable(temp.Lexema).Type, temp, this.semantic.Scope);
+
+
+                    if (NextToken.Token == Token.Atribuição)
                     {
-
-                        var exp = this.ExpressaoAritmetica();
-                        
-                        if (Type != exp.Type)
-                            throw new Exception("atribuição invalida!!!11!!1");
-
-
-                        if (NextToken.Token == Token.PontoVírgula)
-                            return;
+                        if (!this.semantic.VariableIsDeclared(variable.Identifier))
+                            throw new VariableNotDeclaredException(variable.LexicalToken);
                         else
-                            throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.PontoVírgula);
+                        {
 
+                            var exp = this.ExpressaoAritmetica();
+
+
+                            if (!this.semantic.IsCorrectAttribution(variable.Type, exp.ReturnType))
+                                throw new InvalidAttributionException(exp, variable);
+
+
+                            if (NextToken.Token == Token.PontoVírgula)
+                                return;
+                            else
+                                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.PontoVírgula);
+
+                        }
+                    }
+                    else
+                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Atribuição);
                 }
-            }
                 else
-                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Atribuição);
+                    throw new VariableNotDeclaredException(temp);
+
             }
             else
                 throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Identificador);
@@ -361,7 +371,7 @@ namespace Compiler
             if (this.semantic.IsCompatible(op1, op2))
                 return;
             else
-                throw new IncompatibleTypesException(op1.Type, operador, op2.Type);
+                throw new IncompatibleTypesException(op1, operador, op2);
 
 
         }
@@ -379,10 +389,10 @@ namespace Compiler
                 if (this.semantic.IsCompatible(Operador1, Operador2))
                 {
                     var resultingType = this.semantic.GetResultingType(Operador1, Operador, Operador2);
-                    Operador1.ChangeType(resultingType);
+                    Operador1.ChangeReturnType(resultingType);
                 }
                 else
-                    throw new IncompatibleTypesException(Operador1.Type, Operador, Operador2.Type);
+                    throw new IncompatibleTypesException(Operador1, Operador, Operador2);
             }
             return Operador1;
         }
@@ -415,10 +425,10 @@ namespace Compiler
                     if (this.semantic.IsCompatible(op1, op2))
                     {
                         var resultingType = this.semantic.GetResultingType(op1, op, op2);
-                        op1.ChangeType(resultingType);
+                        op1.ChangeReturnType(resultingType);
                     }
                     else
-                        throw new IncompatibleTypesException(op1.Type, op, op2.Type);
+                        throw new IncompatibleTypesException(op1, op, op2);
                 }
             }
 
@@ -438,20 +448,31 @@ namespace Compiler
                     return Symbol;
                 }
             }
-            else if (GetLookAhead.Token == Token.Identificador ||
-                     GetLookAhead.Token == Token.FloatValue ||
-                     GetLookAhead.Token == Token.IntValue ||
-                     GetLookAhead.Token == Token.CharValue)
+            else if (GetLookAhead.Token == Token.Identificador)
             {
-                var Symbol = new Symbol(GetLookAhead.Token, GetLookAhead.Lexema, semantic.Scope);
+                Token Type;
+                if (this.semantic.VariableIsDeclared(GetLookAhead.Lexema))
+                    Type = this.semantic.GetVariable(GetLookAhead.Lexema).Type;
+                else
+                    throw new VariableNotDeclaredException(GetLookAhead);
+
+                var Symbol = new Symbol(Type, GetLookAhead, semantic.Scope);
                 this.GetNextToken();
                 return Symbol;
             }
-            else
-                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.AbreParenteses, 
-                            Token.Identificador, Token.Float, Token.Int, Token.Char);
+            else if (GetLookAhead.Token == Token.FloatValue ||
+                     GetLookAhead.Token == Token.IntValue ||
+                     GetLookAhead.Token == Token.CharValue)
+            {
+                var Symbol = new Symbol(GetLookAhead.Token, GetLookAhead, semantic.Scope);
+                this.GetNextToken();
+                return Symbol;
+            }
 
-            return null;
+
+            throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.AbreParenteses,
+                        Token.Identificador, Token.Float, Token.Int, Token.Char);
+
         }
 
         private Token OperadorRelacional()

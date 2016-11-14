@@ -11,3 +11,8 @@ D:\Lucas\Projetos\GitHub\Compilador\Compiler\bin\Debug\Compiler.pdb
 D:\Lucas\Projetos\GitHub\Compilador\Compiler\obj\Debug\Compiler.exe
 D:\Lucas\Projetos\GitHub\Compilador\Compiler\obj\Debug\Compiler.pdb
 D:\Lucas\Projetos\GitHub\Compilador\Compiler\obj\Debug\Compiler.csprojResolveAssemblyReference.cache
+C:\Users\lssimas\Documents\Visual Studio 2013\Projects\Compiler\Compiler\obj\Debug\Compiler.exe
+C:\Users\lssimas\Documents\Visual Studio 2013\Projects\Compiler\Compiler\obj\Debug\Compiler.pdb
+C:\Users\lssimas\Documents\Visual Studio 2013\Projects\Compiler\Compiler\bin\Debug\Compiler.exe
+C:\Users\lssimas\Documents\Visual Studio 2013\Projects\Compiler\Compiler\bin\Debug\Compiler.pdb
+C:\Users\lssimas\Documents\Visual Studio 2013\Projects\Compiler\Compiler\obj\Debug\Compiler.csprojResolveAssemblyReference.cache

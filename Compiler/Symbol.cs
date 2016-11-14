@@ -9,19 +9,24 @@ namespace Compiler
     public class Symbol
     {
         public Token Type { get; private set; }
-        public string Identifier { get; private set; }
+        public Token ReturnType { get; private set; }
+        public string Identifier { get{return this.LexicalToken.Lexema;}}
         public int Scope { get; private set; }
+        public LexicalToken LexicalToken { get; private set; }
 
-        public Symbol(Token Type, string Identifier, int Scope)
+
+        public Symbol(Token Type, LexicalToken LexicalToken, int Scope)
         {
             this.Type = Type;
-            this.Identifier = Identifier;
+            this.ReturnType = Type;
+
+            this.LexicalToken = LexicalToken;
             this.Scope = Scope;
         }
 
-        public void ChangeType(Token Type)
+        public void ChangeReturnType(Token Type)
         {
-            this.Type = Type;
+            this.ReturnType = Type;
         }
     }
 }
