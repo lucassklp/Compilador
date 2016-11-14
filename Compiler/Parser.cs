@@ -11,8 +11,7 @@ namespace Compiler
     class Parser
     {
         private Scanner scanner;
-        private List<Symbol> symbolTable;
-        private int scope;
+        private Semantic semantic;
 
         private LexicalToken NextToken
         {
@@ -32,7 +31,7 @@ namespace Compiler
             }
         }
 
-        internal void Analizar()
+        internal void Analisar()
         {
             this.Programa();
         }
@@ -40,8 +39,7 @@ namespace Compiler
         public Parser(Scanner scanner)
         {
             this.scanner = scanner;
-            this.symbolTable = new List<Symbol>();
-            this.scope = 0;
+            this.semantic = new Semantic();
         }
 
         public void GetNextToken()
@@ -50,31 +48,6 @@ namespace Compiler
             this.scanner.NextToken();
         }
 
-
-        #region Semantico
-        private void AddToSymbolTable(Token Type, string Identifier, int Scope)
-        {
-            if (this.symbolTable.Exists(x => x.Identifier == Identifier && x.Scope == Scope))
-                throw new VariableAlreadyDeclaredInScopeException(GetLookAhead);
-            else
-                this.symbolTable.Add(new Symbol(Type, Identifier, Scope));
-        }
-
-
-        private List<Symbol> SymbolsCurrentScope
-        {
-            get
-            {
-                return this.symbolTable.FindAll(x => x.Scope == this.scope);
-            }
-        }
-
-        private void RemoveSymbolsCurrentScope()
-        {
-            this.symbolTable.RemoveAll(x => x.Scope == this.scope);
-        }
-
-        #endregion
 
         #region First's
         private bool IsFirstDeclaracaoVariavel()
@@ -132,9 +105,8 @@ namespace Compiler
             Token type = this.Tipo();
             if (GetLookAhead.Token == Token.Identificador)
             {
-                this.AddToSymbolTable(type, GetLookAhead.Lexema, this.scope);
+                this.semantic.AddToSymbolTable(type, GetLookAhead);
                 this.GetNextToken();
-
 
                 while (HasInlineDeclaracoes())
                 {
@@ -142,12 +114,10 @@ namespace Compiler
                     {
                         if (GetLookAhead.Token == Token.Identificador)
                         {
-                            this.AddToSymbolTable(type, GetLookAhead.Lexema, this.scope);
+                            this.semantic.AddToSymbolTable(type, GetLookAhead);
                             this.GetNextToken();
                             continue;
                         }
-
-                            
                         else
                             throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Identificador);
                     }
@@ -215,7 +185,7 @@ namespace Compiler
 
         private void Bloco()
         {
-            this.scope++;
+            this.semantic.CreateScope();
             const string nomeFuncao = "Bloco";
             //<bloco> ::= “{“ {<decl_var>}* {<comando>}* “}”
             if (NextToken.Token == Token.AbreChave)
@@ -228,8 +198,7 @@ namespace Compiler
 
                 if (NextToken.Token == Token.FechaChave)
                 {
-                    this.RemoveSymbolsCurrentScope();
-                    this.scope--;
+                    this.semantic.RemoveCurrentScope();
                     return;
                 }
                     
@@ -347,20 +316,36 @@ namespace Compiler
 
         private void Atribuicao()
         {
+            LexicalToken variable;
+
             const string nomeFuncao = "Atribuicao";
             //<atribuição> ::= < id > "=" < expr_arit > ";"
-            if (NextToken.Token == Token.Identificador)
+            if (GetLookAhead.Token == Token.Identificador)
             {
+                variable = NextToken;
+                Token Type = this.semantic.GetVariable(variable.Lexema).Type;
                 if (NextToken.Token == Token.Atribuição)
                 {
-                    this.ExpressaoAritmetica();
-                    if (NextToken.Token == Token.PontoVírgula)
-                        return;
+                    if (!this.semantic.VariableIsDeclared(variable.Lexema))
+                        throw new VariableNotDeclaredException(variable);
                     else
-                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.PontoVírgula);
+                    {
+
+                        var exp = this.ExpressaoAritmetica();
+                        
+                        if (Type != exp.Type)
+                            throw new Exception("atribuição invalida!!!11!!1");
+
+
+                        if (NextToken.Token == Token.PontoVírgula)
+                            return;
+                        else
+                            throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.PontoVírgula);
+
                 }
+            }
                 else
-                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Identificador);
+                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Atribuição);
             }
             else
                 throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Identificador);
@@ -369,60 +354,88 @@ namespace Compiler
         private void ExpressaoRelacional()
         {
             //<expr_relacional> ::= <expr_arit> <op_relacional> <expr_arit>
-            this.ExpressaoAritmetica();
-            this.OperadorRelacional();
-            this.ExpressaoAritmetica();
+            Symbol op1 = this.ExpressaoAritmetica();
+            Token operador = this.OperadorRelacional();
+            Symbol op2 = this.ExpressaoAritmetica();
+
+            if (this.semantic.IsCompatible(op1, op2))
+                return;
+            else
+                throw new IncompatibleTypesException(op1.Type, operador, op2.Type);
+
+
         }
 
-        //To-do 
-        private void ExpressaoAritmetica()
+        private Symbol ExpressaoAritmetica()
         {
             //<expr_arit> ::= <expr_arit> "+" <termo>   | <expr_arit> "-" <termo> | <termo>
-            this.Termo();
-            this.ExpressaoAritmetica(true);
+            
+            Symbol Operador1 = this.Termo();
+            Token Operador = GetLookAhead.Token;
+            Symbol Operador2 = this.ExpressaoAritmetica(true);
+
+            if (Operador2 != null)
+            {
+                if (this.semantic.IsCompatible(Operador1, Operador2))
+                {
+                    var resultingType = this.semantic.GetResultingType(Operador1, Operador, Operador2);
+                    Operador1.ChangeType(resultingType);
+                }
+                else
+                    throw new IncompatibleTypesException(Operador1.Type, Operador, Operador2.Type);
+            }
+            return Operador1;
         }
 
-        private void ExpressaoAritmetica(bool trick)
+        private Symbol ExpressaoAritmetica(bool trick)
         {
-            if(GetLookAhead.Token == Token.Soma || 
+            Symbol Operador1 = null;
+            if (GetLookAhead.Token == Token.Soma || 
                GetLookAhead.Token == Token.Subtração)
             {
                 this.GetNextToken();
-                this.Termo();
-                this.ExpressaoAritmetica(true);
+                Operador1 = this.Termo();
+                var Operador2 = this.ExpressaoAritmetica(trick);
             }
+
+            return Operador1;
         }
 
-        private void Termo()
+        private Symbol Termo()
         {
             //< termo > ::= < termo > "*" < fator > | < termo > “/” < fator > | < fator >
-            this.Fator();
-            this.Termo(true);
-        }
-
-        private void Termo(bool trick)
-        {
-            if(GetLookAhead.Token == Token.Multiplicação ||
-               GetLookAhead.Token == Token.Divisão)
+            var op1 = this.Fator();
+            while (GetLookAhead.Token == Token.Multiplicação || GetLookAhead.Token == Token.Divisão)
             {
+                Token op = GetLookAhead.Token;
                 this.GetNextToken();
-                this.Fator();
-                this.Termo(trick);
+                var op2 = this.Fator();
+                if (op2 != null)
+                {
+                    if (this.semantic.IsCompatible(op1, op2))
+                    {
+                        var resultingType = this.semantic.GetResultingType(op1, op, op2);
+                        op1.ChangeType(resultingType);
+                    }
+                    else
+                        throw new IncompatibleTypesException(op1.Type, op, op2.Type);
+                }
             }
+
+            return op1;
         }
 
-
-        private void Fator()
+        private Symbol Fator()
         {
             const string nomeFuncao = "Fator";
             //< fator > ::= “(“ < expr_arit > “)” | < id > | < real > | < inteiro > | < char >
             if (GetLookAhead.Token == Token.AbreParenteses)
             {
                 this.GetNextToken();
-                this.ExpressaoAritmetica();
+                var Symbol = this.ExpressaoAritmetica();
                 if(NextToken.Token == Token.FechaParenteses)
                 {
-                    return;
+                    return Symbol;
                 }
             }
             else if (GetLookAhead.Token == Token.Identificador ||
@@ -430,19 +443,26 @@ namespace Compiler
                      GetLookAhead.Token == Token.IntValue ||
                      GetLookAhead.Token == Token.CharValue)
             {
+                var Symbol = new Symbol(GetLookAhead.Token, GetLookAhead.Lexema, semantic.Scope);
                 this.GetNextToken();
-                return;
+                return Symbol;
             }
             else
                 throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.AbreParenteses, 
                             Token.Identificador, Token.Float, Token.Int, Token.Char);
+
+            return null;
         }
 
-        private void OperadorRelacional()
+        private Token OperadorRelacional()
         {
             const string nomeFuncao = "OperadorRelacional";
             if (EnumUtils<Token>.GetFromCategory("Comparador").Exists(x => x == GetLookAhead.Token))
+            {
+                Token Operador = GetLookAhead.Token;
                 this.GetNextToken();
+                return Operador;
+            }
             else
                 throw new ExpectedTokenException(nomeFuncao, GetLookAhead, EnumUtils<Token>.GetFromCategory("Comparador").ToArray());
         }

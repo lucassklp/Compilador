@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodeGenerator.cs" />
     <Compile Include="Exceptions\ExceptionHelper.cs" />
     <Compile Include="Exceptions\Parser\ExpectedTokenException.cs" />
     <Compile Include="Exceptions\Scanner\EndOfFileBlockCommentException.cs" />
@@ -48,7 +49,10 @@
     <Compile Include="Exceptions\Scanner\InvalidCharSequenceException.cs" />
     <Compile Include="Exceptions\Scanner\InvalidNumericFormatException.cs" />
     <Compile Include="Exceptions\Scanner\TokenNotIdentifiedException.cs" />
+    <Compile Include="Exceptions\Semantico\IncompatibleTypesException.cs" />
     <Compile Include="Exceptions\Semantico\VariableAlreadyDeclaredInScopeException.cs" />
+    <Compile Include="Exceptions\Semantico\VariableNotDeclaredException.cs" />
+    <Compile Include="Semantic.cs" />
     <Compile Include="Symbol.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="Parser.cs" />

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Compiler
 {
-    class Symbol
+    public class Symbol
     {
         public Token Type { get; private set; }
         public string Identifier { get; private set; }
@@ -19,5 +19,9 @@ namespace Compiler
             this.Scope = Scope;
         }
 
+        public void ChangeType(Token Type)
+        {
+            this.Type = Type;
+        }
     }
 }
