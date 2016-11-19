@@ -324,37 +324,27 @@ namespace Compiler
             {
                 var temp = NextToken;
 
-                if (this.semantic.VariableIsDeclared(temp.Lexema))
+                variable = new Symbol(this.semantic.GetVariable(temp).Type, temp, this.semantic.Scope);
+
+                if (NextToken.Token == Token.Atribuição)
                 {
-                    variable = new Symbol(this.semantic.GetVariable(temp.Lexema).Type, temp, this.semantic.Scope);
+                    var exp = this.ExpressaoAritmetica();
 
 
-                    if (NextToken.Token == Token.Atribuição)
-                    {
-                        if (!this.semantic.VariableIsDeclared(variable.Identifier))
-                            throw new VariableNotDeclaredException(variable.LexicalToken);
-                        else
-                        {
-
-                            var exp = this.ExpressaoAritmetica();
+                    if (!this.semantic.IsCorrectAttribution(variable.Type, exp.ReturnType))
+                        throw new InvalidAttributionException(exp, variable);
 
 
-                            if (!this.semantic.IsCorrectAttribution(variable.Type, exp.ReturnType))
-                                throw new InvalidAttributionException(exp, variable);
-
-
-                            if (NextToken.Token == Token.PontoVírgula)
-                                return;
-                            else
-                                throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.PontoVírgula);
-
-                        }
-                    }
+                    if (NextToken.Token == Token.PontoVírgula)
+                        return;
                     else
-                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Atribuição);
+                        throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.PontoVírgula);
+
+                    
                 }
                 else
-                    throw new VariableNotDeclaredException(temp);
+                    throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Atribuição);
+
 
             }
             else
@@ -451,10 +441,9 @@ namespace Compiler
             else if (GetLookAhead.Token == Token.Identificador)
             {
                 Token Type;
-                if (this.semantic.VariableIsDeclared(GetLookAhead.Lexema))
-                    Type = this.semantic.GetVariable(GetLookAhead.Lexema).Type;
-                else
-                    throw new VariableNotDeclaredException(GetLookAhead);
+
+                Type = this.semantic.GetVariable(GetLookAhead).Type;
+
 
                 var Symbol = new Symbol(Type, GetLookAhead, semantic.Scope);
                 this.GetNextToken();

@@ -32,7 +32,7 @@ namespace Compiler
             catch(Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
+                //Console.WriteLine(ex.StackTrace);
             }
 
             Console.ReadKey();

@@ -61,20 +61,28 @@ namespace Compiler
 
 
 
-        public Symbol GetVariable(string name)
+        public Symbol GetVariable(Symbol symbol)
         {
-            if (this.symbolTable.Exists(x => x.Identifier == name))
+            if (this.symbolTable.Exists(x => x.Identifier == symbol.Identifier))
             {
-                return this.symbolTable.Find(x => x.Identifier == name);
+                return this.symbolTable.FindAll(x => x.Identifier == symbol.Identifier)
+                    .OrderByDescending(x => x.Scope).First();
             }
             else
-                return null;
+                throw new VariableNotDeclaredException(symbol.LexicalToken);
 
         }
 
-        public bool VariableIsDeclared(string name)
+        public Symbol GetVariable(LexicalToken lt)
         {
-            return GetVariable(name) != null;
+            if (this.symbolTable.Exists(x => x.Identifier == lt.Lexema))
+            {
+                return this.symbolTable.FindAll(x => x.Identifier == lt.Lexema)
+                    .OrderByDescending(x => x.Scope).First();
+            }
+            else
+                throw new VariableNotDeclaredException(lt);
+
         }
 
         private void RemoveSymbolsCurrentScope()
@@ -89,18 +97,12 @@ namespace Compiler
             Token leftToken = left.Type, rightToken = right.Type;
             if(left.Type == Token.Identificador)
             {
-                if (this.VariableIsDeclared(left.Identifier))
-                    leftToken = this.GetVariable(left.Identifier).Type;
-                else
-                    throw new VariableNotDeclaredException(left.LexicalToken);
+                leftToken = this.GetVariable(left).Type;
             }
 
             if (right.Type == Token.Identificador)
             {
-                if (this.VariableIsDeclared(right.Identifier))
-                    rightToken = this.GetVariable(right.Identifier).Type;
-                else
-                    throw new VariableNotDeclaredException(right.LexicalToken);
+                rightToken = this.GetVariable(right).Type;
             }
 
 
@@ -126,18 +128,12 @@ namespace Compiler
             Token t1 = s1.ReturnType, t2 = s2.ReturnType;
             if (t1 == Token.Identificador)
             {
-                if (this.VariableIsDeclared(s1.Identifier))
-                    t1 = this.GetVariable(s1.Identifier).ReturnType;
-                else
-                    throw new VariableNotDeclaredException(s1.LexicalToken);
+                t1 = this.GetVariable(s1).ReturnType;
             }
 
             if (t2 == Token.Identificador)
             {
-                if (this.VariableIsDeclared(s2.Identifier))
-                    t2 = this.GetVariable(s2.Identifier).ReturnType;
-                else
-                    throw new VariableNotDeclaredException(s2.LexicalToken);
+               t2 = this.GetVariable(s2).ReturnType;     
             }
 
             if (op == Token.Divisão)
