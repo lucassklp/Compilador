@@ -416,29 +416,9 @@ namespace Compiler
             Token Operador = GetLookAhead.Token;
             Symbol Operador2 = this.ExpressaoAritmetica(true);
 
-            if (Operador2 != null)
-            {
-                if (this.semantic.IsCompatible(Operador1, Operador2))
-                {
-                    var resultingType = this.semantic.GetResultingType(Operador1, Operador, Operador2);
+            this.TypeHandler(Operador1, Operador, Operador2);
+            this.OperationHandler(Operador1, Operador, Operador2);
 
-                    if (resultingType != Operador1.ReturnType) {
-                        string varName = IntermediateCodeGenerator.GenerateVariableName();
-
-                        IntermediateCodeGenerator.GenerateCode(string.Format("{0} = ConvertTo{1}({2})", varName, resultingType.ToString(), Operador1.Name));
-                        Operador1.SetVariableName(varName);
-                        Operador1.ChangeReturnType(resultingType);
-                    }
-                }
-                else
-                    throw new IncompatibleTypesException(Operador1, Operador, Operador2);
-            }
-
-            if (Operador1 != null && Operador2 != null)
-            {
-                IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), Operador1.Name, EnumUtils<Token>.GetDescription(Operador), Operador2.Name));
-                Operador1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
-            }
 
             return Operador1;
         }
@@ -454,56 +434,14 @@ namespace Compiler
                 Operador1 = this.Termo();
                 var Operador2 = this.ExpressaoAritmetica(trick);
 
-
-
-                //if (Operador2 != null)
-                //{
-                //    if (this.semantic.IsCompatible(Operador1, Operador2))
-                //    {
-                //        var resultingType = this.semantic.GetResultingType(Operador1, Operador, Operador2);
-
-                //        if (resultingType != Operador1.ReturnType)
-                //        {
-                //            string varName = IntermediateCodeGenerator.GenerateVariableName();
-
-                //            IntermediateCodeGenerator.GenerateCode(string.Format("{0} = ConvertTo{1}({2})", varName, resultingType.ToString(), Operador1.Name));
-                //            Operador1.SetVariableName(varName);
-                //            Operador1.ChangeReturnType(resultingType);
-                //        }
-                //    }
-                //    else
-                //        throw new IncompatibleTypesException(Operador1, Operador, Operador2);
-                //}
-
-
-
-
-                if (Operador1 != null && Operador2 != null)
-                {
-                    if (Operador2.Operation != null)
-                    {
-                        IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), Operador1.Name, EnumUtils<Token>.GetDescription(Operador2.Operation.Value), Operador2.Name));
-                        Operador1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
-                    }
-                    else
-                    {
-                        IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), Operador1.Name, EnumUtils<Token>.GetDescription(Operador), Operador2.Name));
-                        Operador1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
-                    }
-                }
-                else if(Operador1 != null)
-                {
-                    Operador1.SetOperation(Operador);
-                    if(Operador1.Type != Token.CharValue && Operador1.Type != Token.FloatValue && Operador1.Type != Token.IntValue)
-                    {
-                        Operador1.SetVariableName(IntermediateCodeGenerator.GenerateVariableName());
-                    }
-                }
+                this.TypeHandler(Operador1, Operador, Operador2);
+                this.OperationHandler(Operador1, Operador, Operador2);                
             }
 
 
             return Operador1;
         }
+
 
         private Symbol Termo()
         {
@@ -514,23 +452,10 @@ namespace Compiler
                 Token op = GetLookAhead.Token;
                 this.GetNextToken();
                 var op2 = this.Fator();
-                if (op2 != null)
-                {
-                    if (this.semantic.IsCompatible(op1, op2))
-                    {
-                        var resultingType = this.semantic.GetResultingType(op1, op, op2);
-                        op1.ChangeReturnType(resultingType);
-                    }
-                    else
-                        throw new IncompatibleTypesException(op1, op, op2);
 
-                    if (op1 != null && op2 != null)
-                    {
-                        IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), op1.Name, EnumUtils<Token>.GetDescription(op), op2.Name));
-                        op1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
-                    }
+                this.TypeHandler(op1, op, op2);
+                this.OperationHandler(op1, op, op2);
 
-                }
             }
             return op1;
         }
@@ -588,6 +513,58 @@ namespace Compiler
         }
 
         #endregion
+
+
+
+        private void TypeHandler(Symbol Operator1, Token Operator, Symbol Operator2)
+        {
+            if (Operator2 != null)
+            {
+                if (this.semantic.IsCompatible(Operator1, Operator2))
+                { 
+                    var resultingType = this.semantic.GetResultingType(Operator1, Operator, Operator2);
+
+                    if (resultingType != Operator1.ReturnType)
+                    {
+                        string varName = IntermediateCodeGenerator.GenerateVariableName();
+
+                        IntermediateCodeGenerator.GenerateCode(string.Format("{0} = ConvertTo{1}({2})", varName, resultingType.ToString(), Operator1.Name));
+                        Operator1.SetVariableName(varName);
+                        Operator1.ChangeReturnType(resultingType);
+                    }
+                }
+                else
+                    throw new IncompatibleTypesException(Operator1, Operator, Operator2);
+            }
+        }
+
+
+        private void OperationHandler(Symbol Operator1, Token Operator, Symbol Operator2)
+        {
+            if (Operator1 != null && Operator2 != null)
+            {
+                if (Operator2.Operation != null)
+                {
+                    IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), Operator1.Name, EnumUtils<Token>.GetDescription(Operator2.Operation.Value), Operator2.Name));
+                    Operator1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
+                }
+                else
+                {
+                    IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), Operator1.Name, EnumUtils<Token>.GetDescription(Operator), Operator2.Name));
+                    Operator1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
+                }
+            }
+            else if (Operator1 != null)
+            {
+                Operator1.SetOperation(Operator);
+                if (Operator1.Type != Token.CharValue && Operator1.Type != Token.FloatValue && Operator1.Type != Token.IntValue)
+                {
+                    Operator1.SetVariableName(IntermediateCodeGenerator.GenerateVariableName());
+                }
+            }
+        }
+
+
 
     }
 }
