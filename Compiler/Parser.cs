@@ -224,15 +224,29 @@ namespace Compiler
             {
                 if (NextToken.Token == Token.AbreParenteses)
                 {
-                    this.ExpressaoRelacional();
+                    string after = IntermediateCodeGenerator.GenerateLabelName();
+
+                    var exp = this.ExpressaoRelacional();
+
+                    IntermediateCodeGenerator.GenerateCode(string.Format("if {0} == 0 goto {1}", exp.Name, after)); //se for falso
+
                     if (NextToken.Token == Token.FechaParenteses)
                     {
                         this.Comando();
+
+                        string begin = IntermediateCodeGenerator.GenerateLabelName();
+                        IntermediateCodeGenerator.GenerateCode(string.Format("goto {0}",  begin)); //se for falso
+                        IntermediateCodeGenerator.GenerateCode(string.Format("{0}:", after));
+
+
                         if (GetLookAhead.Token == Token.Else)
                         {
                             this.GetNextToken();
                             this.Comando();
+                            
                         }
+
+                        IntermediateCodeGenerator.GenerateCode(string.Format("{0}:", begin));
                     }
                     else
                         throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.FechaParenteses);
@@ -268,12 +282,23 @@ namespace Compiler
 
             if (token == Token.Do)
             {
+                string begin = IntermediateCodeGenerator.GenerateLabelName();
+                string after = IntermediateCodeGenerator.GenerateLabelName();
+
+                IntermediateCodeGenerator.GenerateCode(string.Format("{0}:", begin));
+
                 this.Comando();
                 if (NextToken.Token == Token.While)
                 {
                     if (NextToken.Token == Token.AbreParenteses)
                     {
-                        this.ExpressaoRelacional();
+                        var exp = this.ExpressaoRelacional();
+
+                        IntermediateCodeGenerator.GenerateCode(string.Format("if {0} == 0 goto {1}", exp.Name, after));
+
+                        IntermediateCodeGenerator.GenerateCode(string.Format("goto {0}", begin));
+                        IntermediateCodeGenerator.GenerateCode(string.Format("{0}:", after));
+
                         if (NextToken.Token == Token.FechaParenteses)
                         {
                             if (NextToken.Token == Token.PontoVírgula)
@@ -297,11 +322,21 @@ namespace Compiler
             {
                 if (NextToken.Token == Token.AbreParenteses)
                 {
-                    this.ExpressaoRelacional();
+                    string begin = IntermediateCodeGenerator.GenerateLabelName();
+                    string after = IntermediateCodeGenerator.GenerateLabelName();
+
+                    IntermediateCodeGenerator.GenerateCode(string.Format("{0}:", begin));
+
+                    var exp = this.ExpressaoRelacional(); //E.Code
+
+                    IntermediateCodeGenerator.GenerateCode(string.Format("if {0} == 0 goto {1}", exp.Name, after));
+
 
                     if (NextToken.Token == Token.FechaParenteses)
                     {
                         this.Comando();
+                        IntermediateCodeGenerator.GenerateCode(string.Format("goto {0}", begin));
+                        IntermediateCodeGenerator.GenerateCode(string.Format("{0}:", after));
                     }
                     else
                         throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.FechaParenteses);
@@ -349,7 +384,7 @@ namespace Compiler
                 throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Identificador);
         }
 
-        private void ExpressaoRelacional()
+        private Symbol ExpressaoRelacional()
         {
             //<expr_relacional> ::= <expr_arit> <op_relacional> <expr_arit>
             Symbol op1 = this.ExpressaoAritmetica();
@@ -357,9 +392,18 @@ namespace Compiler
             Symbol op2 = this.ExpressaoAritmetica();
 
             if (this.semantic.IsCompatible(op1, op2))
-                return;
+            {
+                if (op1 != null && op2 != null)
+                {
+                    IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), op1.Name, EnumUtils<Token>.GetDescription(operador), op2.Name));
+                    op1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
+                }
+                return op1;
+            }
+                
             else
                 throw new IncompatibleTypesException(op1, operador, op2);
+
 
 
         }
@@ -377,7 +421,14 @@ namespace Compiler
                 if (this.semantic.IsCompatible(Operador1, Operador2))
                 {
                     var resultingType = this.semantic.GetResultingType(Operador1, Operador, Operador2);
-                    Operador1.ChangeReturnType(resultingType);
+
+                    if (resultingType != Operador1.ReturnType) {
+                        string varName = IntermediateCodeGenerator.GenerateVariableName();
+
+                        IntermediateCodeGenerator.GenerateCode(string.Format("{0} = ConvertTo{1}({2})", varName, resultingType.ToString(), Operador1.Name));
+                        Operador1.SetVariableName(varName);
+                        Operador1.ChangeReturnType(resultingType);
+                    }
                 }
                 else
                     throw new IncompatibleTypesException(Operador1, Operador, Operador2);
@@ -385,7 +436,7 @@ namespace Compiler
 
             if (Operador1 != null && Operador2 != null)
             {
-                IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), Operador1.Name, Operador.ToString(), Operador2.Name));
+                IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), Operador1.Name, EnumUtils<Token>.GetDescription(Operador), Operador2.Name));
                 Operador1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
             }
 
@@ -403,10 +454,50 @@ namespace Compiler
                 Operador1 = this.Termo();
                 var Operador2 = this.ExpressaoAritmetica(trick);
 
-                if(Operador1 != null && Operador2 != null)
+
+
+                //if (Operador2 != null)
+                //{
+                //    if (this.semantic.IsCompatible(Operador1, Operador2))
+                //    {
+                //        var resultingType = this.semantic.GetResultingType(Operador1, Operador, Operador2);
+
+                //        if (resultingType != Operador1.ReturnType)
+                //        {
+                //            string varName = IntermediateCodeGenerator.GenerateVariableName();
+
+                //            IntermediateCodeGenerator.GenerateCode(string.Format("{0} = ConvertTo{1}({2})", varName, resultingType.ToString(), Operador1.Name));
+                //            Operador1.SetVariableName(varName);
+                //            Operador1.ChangeReturnType(resultingType);
+                //        }
+                //    }
+                //    else
+                //        throw new IncompatibleTypesException(Operador1, Operador, Operador2);
+                //}
+
+
+
+
+                if (Operador1 != null && Operador2 != null)
                 {
-                    IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), Operador1.Name, Operador.ToString(), Operador2.Name));
-                    Operador1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
+                    if (Operador2.Operation != null)
+                    {
+                        IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), Operador1.Name, EnumUtils<Token>.GetDescription(Operador2.Operation.Value), Operador2.Name));
+                        Operador1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
+                    }
+                    else
+                    {
+                        IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), Operador1.Name, EnumUtils<Token>.GetDescription(Operador), Operador2.Name));
+                        Operador1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
+                    }
+                }
+                else if(Operador1 != null)
+                {
+                    Operador1.SetOperation(Operador);
+                    if(Operador1.Type != Token.CharValue && Operador1.Type != Token.FloatValue && Operador1.Type != Token.IntValue)
+                    {
+                        Operador1.SetVariableName(IntermediateCodeGenerator.GenerateVariableName());
+                    }
                 }
             }
 
@@ -435,7 +526,7 @@ namespace Compiler
 
                     if (op1 != null && op2 != null)
                     {
-                        IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), op1.Name, op.ToString(), op2.Name));
+                        IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), op1.Name, EnumUtils<Token>.GetDescription(op), op2.Name));
                         op1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
                     }
 

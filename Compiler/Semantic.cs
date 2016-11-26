@@ -47,7 +47,6 @@ namespace Compiler
         {
             this.RemoveSymbolsCurrentScope();
             this.scope--;
-            
         }
 
         public void AddToSymbolTable(Token Type, LexicalToken LookAhead)
@@ -145,10 +144,6 @@ namespace Compiler
             {
                 if ((t1 == Token.Float || t1 == Token.FloatValue) || (t2 == Token.Float || t2 == Token.FloatValue))
                 {
-                    if((t1 == Token.Int || t1 == Token.IntValue))
-                    {
-                        IntermediateCodeGenerator.GenerateCode(string.Format("{0} = ToFloat({1})", "p", s1.Identifier));
-                    }
                     return Token.Float;
                 }
                     
@@ -186,10 +181,5 @@ namespace Compiler
             }
                 
         }
-
-
-
-
-
     }
 }

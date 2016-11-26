@@ -22,6 +22,14 @@ namespace Compiler
             }
         }
 
+        public static string CurrentLabelName
+        {
+            get
+            {
+                return string.Format("L{0}", lblCount);
+            }
+        }
+
         public static string GenerateVariableName()
         {
             return string.Format("F{0}", ++varCount);
@@ -31,14 +39,14 @@ namespace Compiler
 
         public static string GenerateLabelName()
         {
-            return string.Format("L{0}", lblCount++);
+            return string.Format("L{0}", ++lblCount);
         }
 
 
 
         public static void GenerateCode(string text)
         {
-            //Console.WriteLine(text);
+            Console.WriteLine(text);
             result.AppendLine(text);
         }
 

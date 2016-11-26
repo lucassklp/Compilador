@@ -14,11 +14,13 @@ namespace Compiler
         public int Scope { get; private set; }
         public LexicalToken LexicalToken { get; private set; }
         public string Name { get; private set; }
+        public Token? Operation { get; private set; }
+
 
         public Symbol(Token Type, LexicalToken LexicalToken, int Scope)
         {
             this.Type = Type;
-            this.ReturnType = Type;
+            this.ReturnType = this.DefineReturnType(Type);
             this.LexicalToken = LexicalToken;
             this.Scope = Scope;
             this.Name = LexicalToken.Lexema;
@@ -33,5 +35,31 @@ namespace Compiler
         {
             this.ReturnType = Type;
         }
+
+        public void SetOperation(Token op)
+        {
+            this.Operation = op;
+        }
+
+        private Token DefineReturnType(Token Type)
+        {
+            if (Type == Token.FloatValue)
+            {
+                return Token.Float;
+            }
+            else if (Type == Token.IntValue)
+            {
+                return Token.Int;
+            }
+            else if (Type == Token.CharValue)
+            {
+                return Token.Char;
+            }
+            else
+            {
+                return Type;
+            }
+        }
+
     }
 }
