@@ -10,8 +10,11 @@ namespace Compiler
 {
     class Parser
     {
+
+        #region Helpers, Variables, Properties and Constructor
         private Scanner scanner;
         private Semantic semantic;
+        private IntermediateCodeGenerator codeGenerator;
 
         private LexicalToken NextToken
         {
@@ -36,10 +39,11 @@ namespace Compiler
             this.Programa();
         }
 
-        public Parser(Scanner scanner)
+        public Parser(Scanner scanner, IntermediateCodeGenerator codeGenerator)
         {
             this.scanner = scanner;
             this.semantic = new Semantic();
+            this.codeGenerator = codeGenerator;
         }
 
         public void GetNextToken()
@@ -47,7 +51,7 @@ namespace Compiler
             //Force to dequeue
             this.scanner.NextToken();
         }
-
+        #endregion
 
         #region First's
         private bool IsFirstDeclaracaoVariavel()
@@ -201,7 +205,6 @@ namespace Compiler
                     this.semantic.RemoveCurrentScope();
                     return;
                 }
-                    
                 else
                     throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.FechaChave);
             }
@@ -224,29 +227,27 @@ namespace Compiler
             {
                 if (NextToken.Token == Token.AbreParenteses)
                 {
-                    string after = IntermediateCodeGenerator.GenerateLabelName();
+                    string after = codeGenerator.GenerateLabelName();
 
                     var exp = this.ExpressaoRelacional();
 
-                    IntermediateCodeGenerator.GenerateCode(string.Format("if {0} == 0 goto {1}", exp.Name, after)); //se for falso
-
+                    codeGenerator.AppendConditionalGoto(exp, after);
+                    
                     if (NextToken.Token == Token.FechaParenteses)
                     {
                         this.Comando();
 
-                        string begin = IntermediateCodeGenerator.GenerateLabelName();
-                        IntermediateCodeGenerator.GenerateCode(string.Format("goto {0}",  begin)); //se for falso
-                        IntermediateCodeGenerator.GenerateCode(string.Format("{0}:", after));
-
+                        string begin = codeGenerator.GenerateLabelName();
+                        codeGenerator.AppendInconditionalGoto(begin);
+                        codeGenerator.AppendLabel(after);
 
                         if (GetLookAhead.Token == Token.Else)
                         {
                             this.GetNextToken();
                             this.Comando();
-                            
                         }
 
-                        IntermediateCodeGenerator.GenerateCode(string.Format("{0}:", begin));
+                        codeGenerator.AppendLabel(begin);
                     }
                     else
                         throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.FechaParenteses);
@@ -282,10 +283,10 @@ namespace Compiler
 
             if (token == Token.Do)
             {
-                string begin = IntermediateCodeGenerator.GenerateLabelName();
-                string after = IntermediateCodeGenerator.GenerateLabelName();
+                string begin = codeGenerator.GenerateLabelName();
+                string after = codeGenerator.GenerateLabelName();
 
-                IntermediateCodeGenerator.GenerateCode(string.Format("{0}:", begin));
+                codeGenerator.AppendLabel(begin);
 
                 this.Comando();
                 if (NextToken.Token == Token.While)
@@ -294,10 +295,9 @@ namespace Compiler
                     {
                         var exp = this.ExpressaoRelacional();
 
-                        IntermediateCodeGenerator.GenerateCode(string.Format("if {0} == 0 goto {1}", exp.Name, after));
-
-                        IntermediateCodeGenerator.GenerateCode(string.Format("goto {0}", begin));
-                        IntermediateCodeGenerator.GenerateCode(string.Format("{0}:", after));
+                        codeGenerator.AppendConditionalGoto(exp, after);
+                        codeGenerator.AppendInconditionalGoto(begin);
+                        codeGenerator.AppendLabel(after);
 
                         if (NextToken.Token == Token.FechaParenteses)
                         {
@@ -322,21 +322,20 @@ namespace Compiler
             {
                 if (NextToken.Token == Token.AbreParenteses)
                 {
-                    string begin = IntermediateCodeGenerator.GenerateLabelName();
-                    string after = IntermediateCodeGenerator.GenerateLabelName();
+                    string begin = codeGenerator.GenerateLabelName();
+                    string after = codeGenerator.GenerateLabelName();
 
-                    IntermediateCodeGenerator.GenerateCode(string.Format("{0}:", begin));
+                    codeGenerator.AppendLabel(begin);
 
-                    var exp = this.ExpressaoRelacional(); //E.Code
-
-                    IntermediateCodeGenerator.GenerateCode(string.Format("if {0} == 0 goto {1}", exp.Name, after));
-
-
+                    var exp = this.ExpressaoRelacional(); 
+                    codeGenerator.AppendConditionalGoto(exp, after);
+                    
                     if (NextToken.Token == Token.FechaParenteses)
                     {
                         this.Comando();
-                        IntermediateCodeGenerator.GenerateCode(string.Format("goto {0}", begin));
-                        IntermediateCodeGenerator.GenerateCode(string.Format("{0}:", after));
+
+                        codeGenerator.AppendInconditionalGoto(begin);
+                        codeGenerator.AppendLabel(after);
                     }
                     else
                         throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.FechaParenteses);
@@ -346,7 +345,6 @@ namespace Compiler
             }
             else
                 throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Do, Token.While);
-
         }
 
         private void Atribuicao()
@@ -365,8 +363,8 @@ namespace Compiler
                 {
                     var exp = this.ExpressaoAritmetica();
 
-                    IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1}", variable.Name, exp.Name));
-
+                    codeGenerator.AppendAttribuition(variable, exp);
+                    
 
                     if (!this.semantic.IsCorrectAttribution(variable.Type, exp.ReturnType))
                         throw new InvalidAttributionException(exp, variable);
@@ -390,22 +388,11 @@ namespace Compiler
             Symbol op1 = this.ExpressaoAritmetica();
             Token operador = this.OperadorRelacional();
             Symbol op2 = this.ExpressaoAritmetica();
-
-            if (this.semantic.IsCompatible(op1, op2))
-            {
-                if (op1 != null && op2 != null)
-                {
-                    IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), op1.Name, EnumUtils<Token>.GetDescription(operador), op2.Name));
-                    op1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
-                }
-                return op1;
-            }
-                
-            else
-                throw new IncompatibleTypesException(op1, operador, op2);
-
-
-
+            
+            this.TypeHandler(op1, operador, op2);
+            this.OperationHandler(op1, operador, op2);
+            
+            return op1;
         }
 
         private Symbol ExpressaoAritmetica()
@@ -455,7 +442,6 @@ namespace Compiler
 
                 this.TypeHandler(op1, op, op2);
                 this.OperationHandler(op1, op, op2);
-
             }
             return op1;
         }
@@ -478,7 +464,6 @@ namespace Compiler
                 Token Type;
 
                 Type = this.semantic.GetVariable(GetLookAhead).Type;
-
 
                 var Symbol = new Symbol(Type, GetLookAhead, semantic.Scope);
                 this.GetNextToken();
@@ -511,11 +496,9 @@ namespace Compiler
             else
                 throw new ExpectedTokenException(nomeFuncao, GetLookAhead, EnumUtils<Token>.GetFromCategory("Comparador").ToArray());
         }
-
         #endregion
 
-
-
+        #region Handles
         private void TypeHandler(Symbol Operator1, Token Operator, Symbol Operator2)
         {
             if (Operator2 != null)
@@ -524,13 +507,21 @@ namespace Compiler
                 { 
                     var resultingType = this.semantic.GetResultingType(Operator1, Operator, Operator2);
 
-                    if (resultingType != Operator1.ReturnType)
+                    if (Operator != Token.Divisão)
                     {
-                        string varName = IntermediateCodeGenerator.GenerateVariableName();
+                        if (resultingType != Operator1.ReturnType)
+                        {
+                            string varName = this.codeGenerator.AppendConvertTo(resultingType, Operator1);
+                            Operator1.SetVariableName(varName);
+                            Operator1.ChangeReturnType(resultingType);
+                        }
 
-                        IntermediateCodeGenerator.GenerateCode(string.Format("{0} = ConvertTo{1}({2})", varName, resultingType.ToString(), Operator1.Name));
-                        Operator1.SetVariableName(varName);
-                        Operator1.ChangeReturnType(resultingType);
+                        if (resultingType != Operator2.ReturnType)
+                        {
+                            string varName = this.codeGenerator.AppendConvertTo(resultingType, Operator2);
+                            Operator2.SetVariableName(varName);
+                            Operator2.ChangeReturnType(resultingType);
+                        }
                     }
                 }
                 else
@@ -543,28 +534,23 @@ namespace Compiler
         {
             if (Operator1 != null && Operator2 != null)
             {
+                string CurrentVariableName;
                 if (Operator2.Operation != null)
-                {
-                    IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), Operator1.Name, EnumUtils<Token>.GetDescription(Operator2.Operation.Value), Operator2.Name));
-                    Operator1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
-                }
+                    CurrentVariableName = codeGenerator.AppendOperation(Operator1, Operator2.Operation.Value, Operator2);
                 else
-                {
-                    IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), Operator1.Name, EnumUtils<Token>.GetDescription(Operator), Operator2.Name));
-                    Operator1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
-                }
+                    CurrentVariableName = codeGenerator.AppendOperation(Operator1, Operator, Operator2); 
+
+                Operator1.SetVariableName(CurrentVariableName);
             }
             else if (Operator1 != null)
             {
-                Operator1.SetOperation(Operator);
-                if (Operator1.Type != Token.CharValue && Operator1.Type != Token.FloatValue && Operator1.Type != Token.IntValue)
-                {
-                    Operator1.SetVariableName(IntermediateCodeGenerator.GenerateVariableName());
-                }
+                if(EnumUtils<Token>.GetFromCategory("OperadorAritmetrico").Exists(x => x == Operator) ||
+                   EnumUtils<Token>.GetFromCategory("Comparador").Exists(x => x == Operator))
+                    Operator1.SetOperation(Operator);
             }
+
         }
-
-
+        #endregion
 
     }
 }

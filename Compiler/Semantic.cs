@@ -140,7 +140,8 @@ namespace Compiler
 
                 return Token.Float;
             }
-            else if (op == Token.Soma || op == Token.Multiplicação || op == Token.Subtração)
+            else if (op == Token.Soma || op == Token.Multiplicação || op == Token.Subtração ||
+                    EnumUtils<Token>.GetCategory(op) == "Comparador")
             {
                 if ((t1 == Token.Float || t1 == Token.FloatValue) || (t2 == Token.Float || t2 == Token.FloatValue))
                 {

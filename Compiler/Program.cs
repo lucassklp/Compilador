@@ -24,10 +24,12 @@ namespace Compiler
                 
                 Scanner scanner = new Scanner(content);
 
-                Parser parser = new Parser(scanner);
+                IntermediateCodeGenerator codeGenerator = new IntermediateCodeGenerator();
+
+                Parser parser = new Parser(scanner, codeGenerator);
                 parser.Analisar();
 
-                IntermediateCodeGenerator.Print();
+                codeGenerator.Print();
 
                 //Console.WriteLine("Compilado com sucesso!");
             }
