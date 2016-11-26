@@ -53,7 +53,7 @@ namespace Compiler
         public void AddToSymbolTable(Token Type, LexicalToken LookAhead)
         {
 
-            if (this.symbolTable.Exists(x => x.Identifier == LookAhead.Lexema && x.Scope == this.scope))
+            if (this.symbolTable.Exists(x => x.Name == LookAhead.Lexema && x.Scope == this.scope))
                 throw new VariableAlreadyDeclaredInScopeException(LookAhead);
             else
                 this.symbolTable.Add(new Symbol(Type, LookAhead, this.scope));
@@ -63,9 +63,9 @@ namespace Compiler
 
         public Symbol GetVariable(Symbol symbol)
         {
-            if (this.symbolTable.Exists(x => x.Identifier == symbol.Identifier))
+            if (this.symbolTable.Exists(x => x.Name == symbol.Name))
             {
-                return this.symbolTable.FindAll(x => x.Identifier == symbol.Identifier)
+                return this.symbolTable.FindAll(x => x.Name == symbol.Name)
                     .OrderByDescending(x => x.Scope).First();
             }
             else
@@ -138,12 +138,20 @@ namespace Compiler
 
             if (op == Token.Divisão)
             {
+
                 return Token.Float;
             }
             else if (op == Token.Soma || op == Token.Multiplicação || op == Token.Subtração)
             {
                 if ((t1 == Token.Float || t1 == Token.FloatValue) || (t2 == Token.Float || t2 == Token.FloatValue))
+                {
+                    if((t1 == Token.Int || t1 == Token.IntValue))
+                    {
+                        IntermediateCodeGenerator.GenerateCode(string.Format("{0} = ToFloat({1})", "p", s1.Identifier));
+                    }
                     return Token.Float;
+                }
+                    
                 else if ((t1 == Token.Int || t1 == Token.IntValue) && (t2 == Token.Int || t2 == Token.IntValue))
                     return Token.Int;
                 else if ((t1 == Token.Char || t1 == Token.CharValue) || (t2 == Token.Char || t2 == Token.CharValue))

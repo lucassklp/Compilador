@@ -330,6 +330,8 @@ namespace Compiler
                 {
                     var exp = this.ExpressaoAritmetica();
 
+                    IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1}", variable.Name, exp.Name));
+
 
                     if (!this.semantic.IsCorrectAttribution(variable.Type, exp.ReturnType))
                         throw new InvalidAttributionException(exp, variable);
@@ -339,13 +341,9 @@ namespace Compiler
                         return;
                     else
                         throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.PontoVírgula);
-
-                    
                 }
                 else
                     throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Atribuição);
-
-
             }
             else
                 throw new ExpectedTokenException(nomeFuncao, GetLookAhead, Token.Identificador);
@@ -384,6 +382,13 @@ namespace Compiler
                 else
                     throw new IncompatibleTypesException(Operador1, Operador, Operador2);
             }
+
+            if (Operador1 != null && Operador2 != null)
+            {
+                IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), Operador1.Name, Operador.ToString(), Operador2.Name));
+                Operador1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
+            }
+
             return Operador1;
         }
 
@@ -393,10 +398,18 @@ namespace Compiler
             if (GetLookAhead.Token == Token.Soma || 
                GetLookAhead.Token == Token.Subtração)
             {
+                Token Operador = GetLookAhead.Token;
                 this.GetNextToken();
                 Operador1 = this.Termo();
                 var Operador2 = this.ExpressaoAritmetica(trick);
+
+                if(Operador1 != null && Operador2 != null)
+                {
+                    IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), Operador1.Name, Operador.ToString(), Operador2.Name));
+                    Operador1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
+                }
             }
+
 
             return Operador1;
         }
@@ -419,9 +432,15 @@ namespace Compiler
                     }
                     else
                         throw new IncompatibleTypesException(op1, op, op2);
+
+                    if (op1 != null && op2 != null)
+                    {
+                        IntermediateCodeGenerator.GenerateCode(string.Format("{0} = {1} {2} {3}", IntermediateCodeGenerator.GenerateVariableName(), op1.Name, op.ToString(), op2.Name));
+                        op1.SetVariableName(IntermediateCodeGenerator.CurrentVariableName);
+                    }
+
                 }
             }
-
             return op1;
         }
 

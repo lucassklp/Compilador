@@ -53,6 +53,7 @@
     <Compile Include="Exceptions\Semantico\InvalidAttributionException.cs" />
     <Compile Include="Exceptions\Semantico\VariableAlreadyDeclaredInScopeException.cs" />
     <Compile Include="Exceptions\Semantico\VariableNotDeclaredException.cs" />
+    <Compile Include="IntermediateCodeGenerator.cs" />
     <Compile Include="Semantic.cs" />
     <Compile Include="Symbol.cs" />
     <Compile Include="Token.cs" />

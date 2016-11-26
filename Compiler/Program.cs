@@ -27,12 +27,14 @@ namespace Compiler
                 Parser parser = new Parser(scanner);
                 parser.Analisar();
 
-                Console.WriteLine("Compilado com sucesso!");
+                IntermediateCodeGenerator.Print();
+
+                //Console.WriteLine("Compilado com sucesso!");
             }
             catch(Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                //Console.WriteLine(ex.StackTrace);
+                Console.WriteLine(ex.StackTrace);
             }
 
             Console.ReadKey();

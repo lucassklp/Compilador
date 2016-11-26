@@ -13,15 +13,20 @@ namespace Compiler
         public string Identifier { get{return this.LexicalToken.Lexema;}}
         public int Scope { get; private set; }
         public LexicalToken LexicalToken { get; private set; }
-
+        public string Name { get; private set; }
 
         public Symbol(Token Type, LexicalToken LexicalToken, int Scope)
         {
             this.Type = Type;
             this.ReturnType = Type;
-
             this.LexicalToken = LexicalToken;
             this.Scope = Scope;
+            this.Name = LexicalToken.Lexema;
+        }
+
+        public void SetVariableName(string Name)
+        {
+            this.Name = Name;
         }
 
         public void ChangeReturnType(Token Type)
