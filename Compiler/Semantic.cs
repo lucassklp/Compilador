@@ -126,28 +126,20 @@ namespace Compiler
 
             Token t1 = s1.ReturnType, t2 = s2.ReturnType;
             if (t1 == Token.Identificador)
-            {
                 t1 = this.GetVariable(s1).ReturnType;
-            }
+
 
             if (t2 == Token.Identificador)
-            {
                t2 = this.GetVariable(s2).ReturnType;     
-            }
+
 
             if (op == Token.Divisão)
-            {
-
                 return Token.Float;
-            }
-            else if (op == Token.Soma || op == Token.Multiplicação || op == Token.Subtração ||
+            else if (op == Token.Soma || op == Token.Multiplicação || op == Token.Subtração || op == Token.Atribuição ||
                     EnumUtils<Token>.GetCategory(op) == "Comparador")
             {
                 if ((t1 == Token.Float || t1 == Token.FloatValue) || (t2 == Token.Float || t2 == Token.FloatValue))
-                {
-                    return Token.Float;
-                }
-                    
+                    return Token.Float;                    
                 else if ((t1 == Token.Int || t1 == Token.IntValue) && (t2 == Token.Int || t2 == Token.IntValue))
                     return Token.Int;
                 else if ((t1 == Token.Char || t1 == Token.CharValue) || (t2 == Token.Char || t2 == Token.CharValue))

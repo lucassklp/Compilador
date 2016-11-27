@@ -363,6 +363,8 @@ namespace Compiler
                 {
                     var exp = this.ExpressaoAritmetica();
 
+                    this.TypeHandler(variable, Token.Atribuição, exp);
+
                     codeGenerator.AppendAttribuition(variable, exp);
                     
 
