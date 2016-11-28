@@ -427,7 +427,6 @@ namespace Compiler
                 this.OperationHandler(Operador1, Operador, Operador2);                
             }
 
-
             return Operador1;
         }
 
