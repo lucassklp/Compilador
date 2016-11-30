@@ -508,22 +508,30 @@ namespace Compiler
                 { 
                     var resultingType = this.semantic.GetResultingType(Operator1, Operator, Operator2);
 
-                    if (Operator != Token.Divisão)
-                    {
-                        if (resultingType != Operator1.ReturnType)
-                        {
-                            string varName = this.codeGenerator.AppendConvertTo(resultingType, Operator1);
-                            Operator1.SetVariableName(varName);
-                            Operator1.ChangeReturnType(resultingType);
-                        }
+					if (Operator != Token.Divisão)
+					{
+						if (resultingType != Operator1.ReturnType) 
+						{
+							string varName = this.codeGenerator.AppendConvertTo (resultingType, Operator1);
+							Operator1.SetVariableName (varName);
+							Operator1.ChangeReturnType (resultingType);
+						}
 
-                        if (resultingType != Operator2.ReturnType)
-                        {
-                            string varName = this.codeGenerator.AppendConvertTo(resultingType, Operator2);
-                            Operator2.SetVariableName(varName);
-                            Operator2.ChangeReturnType(resultingType);
-                        }
-                    }
+						if (resultingType != Operator2.ReturnType) 
+						{
+							string varName = this.codeGenerator.AppendConvertTo (resultingType, Operator2);
+							Operator2.SetVariableName (varName);
+							Operator2.ChangeReturnType (resultingType);
+						}
+					} 
+					else 
+					{
+						if (resultingType != Operator1.ReturnType) 
+						{
+							Operator1.ChangeReturnType (resultingType);
+						}
+					}
+
                 }
                 else
                     throw new IncompatibleTypesException(Operator1, Operator, Operator2);

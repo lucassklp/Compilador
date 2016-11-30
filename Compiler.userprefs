@@ -1,17 +1,15 @@
 ﻿<Properties StartupItem="Compiler/Compiler.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Compiler/Parser.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Compiler/Program.cs">
     <Files>
-      <File FileName="Compiler/Program.cs" Line="30" Column="28" />
-      <File FileName="Compiler/IntermediateCodeGenerator.cs" Line="99" Column="1" />
-      <File FileName="Compiler/Parser.cs" Line="430" Column="1" />
+      <File FileName="Compiler/Program.cs" Line="14" Column="4" />
+      <File FileName="Compiler/IntermediateCodeGenerator.cs" Line="1" Column="1" />
+      <File FileName="Compiler/Parser.cs" Line="1" Column="1" />
+      <File FileName="Compiler/Symbol.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/home/lucas/Documents/GitHub/Compilador/Compiler/Program.cs" line="32" column="1" />
-      <Breakpoint file="/home/lucas/Documents/GitHub/Compilador/Compiler/Parser.cs" line="401" column="1" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

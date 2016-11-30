@@ -12,28 +12,10 @@ namespace Compiler
         private int lblCount = -1;
         private StringBuilder result = new StringBuilder();
 
-        public string CurrentVariableName
-        {
-            get
-            {
-                return string.Format("T{0}", varCount);
-            }
-        }
-
-        public string CurrentLabelName
-        {
-            get
-            {
-                return string.Format("L{0}", lblCount);
-            }
-        }
-
         public string GenerateVariableName()
         {
             return string.Format("T{0}", ++varCount);
         }
-
-        
 
         public string GenerateLabelName()
         {
@@ -81,7 +63,6 @@ namespace Compiler
 
         private void GenerateCode(string text)
         {
-            Console.WriteLine(text);
             result.AppendLine(text);
         }
 
@@ -90,7 +71,7 @@ namespace Compiler
             Console.WriteLine(result);
         }
 
-        internal void AppendAttribuition(Symbol variable, Symbol exp)
+		public void AppendAttribuition(Symbol variable, Symbol exp)
         {
             this.GenerateCode(string.Format("{0} = {1}", variable.Name, exp.Name));
         }

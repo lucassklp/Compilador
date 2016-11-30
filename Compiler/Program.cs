@@ -11,8 +11,8 @@ namespace Compiler
     {
         static void Main(string[] args)
         {
-			
-			string file = @"/home/lucas/Documents/arquivo_teste.c";
+
+			string file = args [0]; 
 
             string content;
             try
