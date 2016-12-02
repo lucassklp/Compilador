@@ -1,8 +1,6 @@
 /home/lucas/Documents/GitHub/Compilador/Compiler/obj/Debug/.NETFramework,Version=v4.5.AssemblyAttribute.cs
 /home/lucas/Documents/GitHub/Compilador/Compiler/bin/Debug/Compiler.exe.config
 /home/lucas/Documents/GitHub/Compilador/Compiler/bin/Debug/Compiler.exe.mdb
-/home/lucas/Documents/GitHub/Compilador/Compiler/bin/Debug/Compiler.pdb
 /home/lucas/Documents/GitHub/Compilador/Compiler/bin/Debug/Compiler.exe
 /home/lucas/Documents/GitHub/Compilador/Compiler/obj/Debug/Compiler.exe
 /home/lucas/Documents/GitHub/Compilador/Compiler/obj/Debug/Compiler.exe.mdb
-/home/lucas/Documents/GitHub/Compilador/Compiler/obj/Debug/Compiler.pdb

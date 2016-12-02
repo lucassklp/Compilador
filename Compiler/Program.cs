@@ -12,7 +12,7 @@ namespace Compiler
         static void Main(string[] args)
         {
 
-			string file = args [0]; 
+			string file = args [0];
 
             string content;
             try
@@ -30,8 +30,6 @@ namespace Compiler
                 parser.Analisar();
 
                 codeGenerator.Print();
-
-                //Console.WriteLine("Compilado com sucesso!");
             }
             catch(Exception ex)
             {

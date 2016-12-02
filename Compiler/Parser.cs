@@ -526,9 +526,27 @@ namespace Compiler
 					} 
 					else 
 					{
+					
+						if (Operator1.ReturnType != Operator2.ReturnType) 
+						{
+							if (Operator1.ReturnType == Token.Int) 
+							{
+								string varName = this.codeGenerator.AppendConvertTo (Token.Float, Operator1);
+								Operator1.SetVariableName (varName);
+								Operator1.ChangeReturnType(Token.Float);	
+							}
+
+							if (Operator2.ReturnType == Token.Int) 
+							{
+								string varName = this.codeGenerator.AppendConvertTo (Token.Float, Operator2);
+								Operator2.SetVariableName (varName);
+								Operator2.ChangeReturnType(Token.Float);	
+							}
+						}
+
 						if (resultingType != Operator1.ReturnType) 
 						{
-							Operator1.ChangeReturnType (resultingType);
+							Operator1.ChangeReturnType (Token.Float);
 						}
 					}
 
